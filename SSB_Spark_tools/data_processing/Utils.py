@@ -1,4 +1,7 @@
-def traverse_hieark(keylist, travdf, parqdf, idstreng):
+import pyspark.sql.functions as F
+from pyspark.sql.types import *
+    
+def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):        
     global ds_dict
     id = travdf + "_id"
     if (len(keylist)>0):
@@ -47,21 +50,22 @@ def traverse_hieark(keylist, travdf, parqdf, idstreng):
         df = df.withColumn(id, (F.monotonically_increasing_id()+ 1000000).cast(StringType()))\
                 .select(id, 'sonavn.*')
     
-   
-    cols = [i.name for i in df.schema.fields if ("ArrayType(StructType"==str(i.dataType)[:20]) | ("StructType(List"==str(i.dataType)[:15])]
-    
-    for socol in cols:
-        idstreng.append(socol)
-        keylist.append(id)
-        traverse_hieark(keylist, socol, df, idstreng)
-        keylist.remove(id)
-        df = df.drop(socol)
-        idstreng.remove(socol)
+    hierarchylevels = hierarchylevels - 1
+    if (hierarchylevels == -1) | (hierarchylevels != 0):
+        cols = [i.name for i in df.schema.fields if ("ArrayType(StructType"==str(i.dataType)[:20]) | ("StructType(List"==str(i.dataType)[:15])]
+
+        for socol in cols:
+            idstreng.append(socol)
+            keylist.append(id)
+            traverse_hiearchy(keylist, socol, df, idstreng, hierarchylevels)
+            keylist.remove(id)
+            df = df.drop(socol)
+            idstreng.remove(socol)
         
     dictName = '_'.join(map(str, idstreng)) 
     ds_dict[dictName]= df.cache()
         
-def pakkut_parq(parqdf, rootdf=False, rootvar=True):
+def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
     ##parqdf -- Parquetfilen som skal pakkes ut
     
     ##rootdf: True/False: Avgjør om det skal lages et eget datasett for rotnivå uten variablene som skal pakkes ut
@@ -76,7 +80,7 @@ def pakkut_parq(parqdf, rootdf=False, rootvar=True):
     ds_dict = {}
     keylist = []
     
-
+    hierarchylevels = levels
     
     if type(rootdf) not in (bool, list):
         print("Error: rootdf i pakkut_parq kan bare inneholde boolsk eller list verdier")
@@ -106,133 +110,19 @@ def pakkut_parq(parqdf, rootdf=False, rootvar=True):
             keylist=rootvar
     else:
         keylist=[]
-        
-    list_col = [i.name for i in parqdf.schema.fields if ("ArrayType(StructType"==str(i.dataType)[:20]) | ("StructType(List"==str(i.dataType)[:15])]
     
-    for socol in list_col:
-        idstreng = [socol]
-        traverse_hieark(keylist, socol, parqdf, idstreng)
-    return ds_dict.copy()
-    
-def kkMissing(missingdata, exceptionData=[]):
+    if hierarchylevels != 0:
+        list_col = [i.name for i in parqdf.schema.fields if ("ArrayType(StructType"==str(i.dataType)[:20]) | ("StructType(List"==str(i.dataType)[:15])]
 
-    pdDF = pd.DataFrame(columns=['index', 'False', 'True', 'datasett', 'antKorrigert'])
-    
-    def dfMissing(datadf, name, numlist, boollist):
-        df = datadf.toPandas()
-        df = pd.isna(df)
-        df = df.apply(pd.value_counts).fillna(0)
-        df = df.transpose() 
-        if 1 in list(df.columns):
-                df.rename(columns={1:"antMissing"}, inplace=True)
-        else:
-            df['antMissing'] = 0
-        df['antMissing'].astype(int)
-        df['datasett'] = name
-        df['variabel'] = df.index
-        df['antKorrigert']= 0
-        
-        df.loc[df['variabel'].isin(numlist) | df['variabel'].isin(boollist), 'antKorrigert'] = df['antMissing']
-        
-        datadf = datadf.fillna(0, subset=numlist)
-        datadf = datadf.fillna(False, subset=boollist)
-        return datadf, df
-    
-    if (isinstance(missingdata, (DataFrame, type({})))) & (isinstance(exceptionData, (type([]), type({})))):
-        if (isinstance(missingdata, DataFrame)) & (isinstance(exceptionData, type([]))) | ((isinstance(missingdata, type({}))) & ((isinstance(exceptionData, type({}))) | (isinstance(exceptionData, type([])) & (len(exceptionData)==0)))):
-        
-            if isinstance(missingdata, type({})):
-                
-                missdata = missingdata.copy()
-                if (isinstance(exceptionData, type([]))):
-                    exceptionData = {}
-                
-                for so in missdata.keys():
-                    numlist = []
-                    boollist = []
-                    
-                    for k in missdata[so].schema.fields:
-                        if so in exceptionData.keys():
-                            if k.name not in exceptionData[so]:
-                                if str(k.dataType) in ['LongType', 'ByteType', 'ShortType', 'IntegerType', 'FloatType', 'DoubleType', 'DecimalType']:
-                                    numlist.append(k.name)
-                                if (str(k.dataType) == 'BooleanType'):
-                                    boollist.append(k.name)
-                            
-                        else:
-                            if str(k.dataType) in ['LongType', 'ByteType', 'ShortType', 'IntegerType', 'FloatType', 'DoubleType', 'DecimalType']:
-                                numlist.append(k.name)
-                            if (str(k.dataType) == 'BooleanType'):
-                                boollist.append(k.name)
-                                
-                    missdata[so], logDF = dfMissing(missdata[so], so, numlist, boollist)
-                    
-                    if pdDF.empty:
-                        pdDF = logDF
-                    else: 
-                        pdDF = pdDF.append(logDF, ignore_index=True, sort=False)
-                    
-                pdDF = pdDF.fillna(0)
-                
-                
-                spark_logdf = spark.createDataFrame(pdDF)    
-                spark_logdf = spark_logdf.withColumn('andelMissing', F.col('antMissing')/(F.col('antMissing') + F.col('False')))
-                spark_logdf = spark_logdf.withColumn('nyandelMissing', (F.col('antMissing') - F.col('antKorrigert'))/(F.col('antMissing') + F.col('False')))
-                spark_logdf = spark_logdf.select('datasett', 'variabel', 'antMissing', 'andelMissing', 'antKorrigert', 'nyandelMissing')
-                spark_logdf = spark_logdf.withColumn("antMissing", spark_logdf["antMissing"].cast(IntegerType()))
-                spark_logdf = spark_logdf.withColumn("antKorrigert", spark_logdf["antKorrigert"].cast(IntegerType()))
-                
-                return missdata, spark_logdf
+        for socol in list_col:
+            idstreng = [socol]
+            traverse_hiearchy(keylist, socol, parqdf, idstreng, hierarchylevels)
             
-            else:
-                
-                missdata = missingdata
-                
-                numlist = []
-                boollist = []
-                
-                for variabel in missdata.columns:
-                    if (len(exceptionData)==0) | (variabel not in exceptionData):
-                            if str(missdata.schema[variabel].dataType) in ['LongType', 'ByteType', 'ShortType', 'IntegerType', 'FloatType', 'DoubleType', 'DecimalType']:
-                                numlist.append(variabel)
-                            if str(missdata.schema[variabel].dataType) == 'BooleanType':
-                                boollist.append(variabel)
-                
-                missdata, logDF = dfMissing(missdata, 'test', numlist, boollist)
-                
-                if pdDF.empty:
-                        pdDF = logDF
-                else: 
-                    pdDF = pdDF.append(logDF, ignore_index=True, sort=False)
-                        
-                pdDF = pdDF.fillna(0)
-                
-                spark_logdf = spark.createDataFrame(pdDF)    
-                spark_logdf = spark_logdf.withColumn('andelMissing', F.col('antMissing')/(F.col('antMissing') + F.col('False')))
-                spark_logdf = spark_logdf.withColumn('nyandelMissing', (F.col('antMissing') - F.col('antKorrigert'))/(F.col('antMissing') + F.col('False')))
-                spark_logdf = spark_logdf.select('variabel', 'antMissing', 'andelMissing', 'antKorrigert', 'nyandelMissing')
-                spark_logdf = spark_logdf.withColumn("antMissing", spark_logdf["antMissing"].cast(IntegerType()))
-                spark_logdf = spark_logdf.withColumn("antKorrigert", spark_logdf["antKorrigert"].cast(IntegerType()))
-                
-                return missdata, spark_logdf
-                                
-        else:
-            if (isinstance(missingdata, DataFrame)) & (isinstance(exceptionData, type({}))):
-                raise Exception('Når missingdata er en dataframe må exceptionData også være en liste')
-                return
-            else:
-                raise Exception('Når missingdata er en dictionary må exceptionData også være en dictionary')
-                return
-    else: 
-        if isinstance(missingdata, (DataFrame, type({}))):
-            raise Exception('exceptionData må være liste eller dictionary')
-            return
-        else:
-            raise Exception('missingdata må være liste eller dictionary')
-            return
+    return ds_dict.copy()
         
 def tverrsnitt(df, coDate=None):
     if coDate!=None:
         df = df.filter(F.col('hendelsetidspunkt') <= coDate)
-    df_dato = df.join(df.groupBy('identifikator', 'gjelderPeriode').agg(F.max('hendelsetidspunkt').alias("hendelsetidspunkt")), ['identifikator', 'gjelderPeriode', 'hendelsetidspunkt'], how='inner')
+        df_dato = df.join(df.groupBy('identifikator', 'gjelderPeriode').agg(F.max('hendelsetidspunkt').alias("hendelsetidspunkt")),\
+                          ['identifikator', 'gjelderPeriode', 'hendelsetidspunkt'], how='inner')
     return df_dato
