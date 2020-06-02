@@ -4,11 +4,15 @@ from pyspark.sql.types import *
 from itertools import chain
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
+import pyspark.sql.functions as F
+from pyspark import SparkContext
 
-
+#def listcode_check(df, variabel, kodeliste, sqlContext = SQLContext(sc)):
 def listcode_check(df, variabel, kodeliste):
-        
+    
     if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, type([]))):
+        sc = SparkContext.getOrCreate()
+        sqlContext = SQLContext(sc)
         
         sjekk_listedf = []
         sjekk_bol = True
@@ -29,9 +33,8 @@ def listcode_check(df, variabel, kodeliste):
                         StructField('i_kodeliste', BooleanType(), False)]
         
         schema_kl = StructType(field_kl)
-        rdd_sl = spark.sparkContext.parallelize(sjekk_listedf)
-        sjekk_df = df
-        sjekk_df = spark.createDataFrame(rdd_sl, schema_kl)
+        rdd_sl = sc.parallelize(sjekk_listedf)
+        sjekk_df = sqlContext.createDataFrame(rdd_sl, schema_kl)
     
         return sjekk_bol, sjekk_df
     else:
