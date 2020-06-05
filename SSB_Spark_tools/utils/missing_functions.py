@@ -1,12 +1,7 @@
 import pandas as pd
-from pyspark import SparkContext
-from pyspark.sql.session import SparkSession
+from collections import OrderedDict
 
 def missing_df(df, subsetvar=None):
-    #Overfører sparkcontext til funksjon
-    sc = SparkContext.getOrCreate()
-    spark = SparkSession(sc)
-    
     #Transformerer spark dataframe til pandas dataframe for å kunne benytte pandas funksjoner
     df = df.toPandas()
     
@@ -35,11 +30,60 @@ def missing_df(df, subsetvar=None):
        
     #Setter index variabel som er listen av variabler fra orginal dataframe til egen variabel pga i transformasjon tilbake til spark dataframe
     #slettes index variabler
-    df['variable'] = df.index
+    #df['variable'] = df.index
     
     #Endrer rekkefølgen på variablene til ønsket rekkefølge
-    df = df[['variable', 'missing', 'shareoftotal']]
+    #df = df[['variable', 'missing', 'shareoftotal']]
     
-    #Transformer dataframe fra pandas til spark dataframe og returnerer resultatet
-    return spark.createDataFrame(df)
+    return df
+
+def missing_correction_bool(df, correction_value=False, exception_for=[]):
+    #initialiserer variabler
+    boollist = []
+    
+    #Legger alle boolske variabler i en egen liste
+    for k in df.schema.fields:
+        if k.name not in exception_for:
+            if (str(k.dataType) == 'BooleanType'):
+                boollist.append(k.name)
+    
+    #Transformerer spark dataframe til pandas dataframe for å lage logg med opptellinger av korrigerte verdier
+    df_count = df[boollist].toPandas()
+    df_count = df_count.isnull().sum()
+    df_count = df_count.to_dict(OrderedDict)
+    df_dict_count= {}
+    for k, v in df_count.items():
+        if v != 0:
+            df_dict_count[k] = v
+            
+    #Korrigerer verdier som er boolske
+    df = df.fillna(correction_value, subset=boollist)
+    
+    #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel 
+    return df, df_dict_count
+                                    
+def missing_correction_number(df, correction_value=0, exception_for=[]):
+    #initialiserer variabler
+    numlist = []
+    
+    #Legger alle numeriske variabler i en egen liste
+    for k in df.schema.fields:
+        if k.name not in exception_for:
+            if str(k.dataType) in ['LongType', 'ByteType', 'ShortType', 'IntegerType', 'FloatType', 'DoubleType', 'DecimalType']:    
+                numlist.append(k.name)
+                
+    #Transformerer spark dataframe til pandas dataframe for å lage logg med opptellinger av korrigerte verdier        
+    df_count = df[numlist].toPandas()
+    df_count = df_count.isnull().sum()
+    df_count = df_count.to_dict(OrderedDict)
+    df_dict_count= {}
+    for k, v in df_count.items():
+        if v != 0:
+            df_dict_count[k] = v
+
+    #Korrigerer verdier som er numeriske
+    df = df.fillna(correction_value, subset=numlist)
+    
+    #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel
+    return df, df_dict_count
         
