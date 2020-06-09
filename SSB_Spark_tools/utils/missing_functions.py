@@ -4,6 +4,7 @@ import numbers
 from pyspark.sql import DataFrame
 
 def missing_df(df):
+    #Parameter df --> datasett som det skal kjøres opptelling av missing for
     if (isinstance(df, DataFrame)):
         #Transformerer spark dataframe til pandas dataframe for å kunne benytte pandas funksjoner
         df = df.toPandas()
@@ -31,19 +32,16 @@ def missing_df(df):
             df['shareoftotal'] = 1
 
 
-        #Setter index variabel som er listen av variabler fra orginal dataframe til egen variabel pga i transformasjon tilbake til spark dataframe
-        #slettes index variabler
-        #df['variable'] = df.index
-
-        #Endrer rekkefølgen på variablene til ønsket rekkefølge
-        #df = df[['variable', 'missing', 'shareoftotal']]
-
         return df
     else:
         raise Exception('Parameter df må være en dataframe')
         return
 
 def missing_correction_bool(df, correction_value=False, exception_for=[]):
+    #Parameter df --> datasett som det skal kjøres opptelling av missing for
+    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
+    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+    
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
         boollist = []
@@ -81,6 +79,10 @@ def missing_correction_bool(df, correction_value=False, exception_for=[]):
 
                                     
 def missing_correction_number(df, correction_value=0, exception_for=[]):
+    #Parameter df --> datasett som det skal kjøres opptelling av missing for
+    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
+    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
         numlist = []
