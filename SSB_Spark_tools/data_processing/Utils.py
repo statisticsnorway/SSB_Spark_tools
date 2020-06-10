@@ -1,7 +1,27 @@
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
     
-def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):        
+def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
+    '''
+    This functuion walks a hrarcical datasett stored in memmory,
+    and returns all packed as unpackked data objects.
+    
+    The function takes a hirarchical datasett, investigates the schema structre 
+    to find any othe hirarchy ellements of type struct, list,and arrays. 
+    All object found in thhe data obdject are subsequently unnpacked, 
+    and returend as an data object. 
+    
+    This is a recursive  function, which ends, when there are no list or array type 
+    columns left in the original data object. 
+    
+    The function also allows for level control limiting the depth at which the 
+    function will look for arrays.
+    
+    :param keylist: List containing the variables you want to carry forward from the level above, to the level bellow
+    :type keylist: List
+    :param 
+    '''
+    
     global ds_dict
     id = travdf + "_id"
     if (len(keylist)>0):
@@ -66,16 +86,18 @@ def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     ds_dict[dictName]= df.cache()
         
 def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
-    ##parqdf -- Parquetfilen som skal pakkes ut
+    '''
     
-    ##rootdf: True/False: Avgjør om det skal lages et eget datasett for rotnivå uten variablene som skal pakkes ut
-    ##        Liste: Lager et eget datasett med variabler som ligger rot definert i en liste
+    :param parqdf: -- Parquetfilen som skal pakkes ut
+    :type parqdf:
+    :param rootdf: True/False: Avgjør om det skal lages et eget datasett for rotnivå uten variablene som skal pakkes ut
+    :type rootdf: Boolean/list Liste: Lager et eget datasett med variabler som ligger rot definert i en liste
     
-    ##rootvar avgjør hvordan vi skan håndtere variabler på rotnivå. 
-    ## True/False: True -- (default) Her vil alle variabler, som ikke må pakkes ut, på rotnivå også bli med på alle datasett som pakkes ut
-    ##             False -- Variabler på rotnivå vil kun være  med i datasett for roten hvis rootdf er satt til True 
-    ## List: Liste med variabler som skal være med fra rotnivå til datasettene som pakkes ut
-    
+    rootvar avgjør hvordan vi skan håndtere variabler på rotnivå. 
+     True/False: True -- (default) Her vil alle variabler, som ikke må pakkes ut, på rotnivå også bli med på alle datasett som pakkes ut
+                 False -- Variabler på rotnivå vil kun være  med i datasett for roten hvis rootdf er satt til True 
+     List: Liste med variabler som skal være med fra rotnivå til datasettene som pakkes ut
+    '''
     global ds_dict
     ds_dict = {}
     keylist = []
