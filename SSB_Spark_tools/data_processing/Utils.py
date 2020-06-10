@@ -120,9 +120,13 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
             
     return ds_dict.copy()
         
-def tverrsnitt(df, coDate=None):
+def cross_sectional(df, event_var, event_id, coDate=None):
     if coDate!=None:
-        df = df.filter(F.col('hendelsetidspunkt') <= coDate)
-        df_dato = df.join(df.groupBy('identifikator', 'gjelderPeriode').agg(F.max('hendelsetidspunkt').alias("hendelsetidspunkt")),\
-                          ['identifikator', 'gjelderPeriode', 'hendelsetidspunkt'], how='inner')
-    return df_dato
+        df = df.filter(F.col(event_var) <= coDate)
+    
+    eventlist_ids = event_id.copy()
+    eventlist_ids.append(event_var)
+    
+    df_cross = df.join(df.groupBy(event_id).agg(F.max(event_var).alias(event_var)),\
+                          eventlist_ids, how='inner')
+    return df_cross
