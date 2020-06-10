@@ -1,0 +1,2 @@
+sc.getConf().getAll() # gets all spark session configs
+spark.read.path("/kilde*").show() # skows all data sets in a path
