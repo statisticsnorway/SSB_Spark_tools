@@ -18,10 +18,19 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     function will look for arrays.
     
     :param keylist: List containing the variables you want to carry forward from the level above, to the level bellow
-    :type keylist: List
-    :param 
-    '''
+    :type keylist: list
     
+     
+    '''
+    #:param keylist: List containing the variables you want to carry forward from the level above, to the level bellow
+    #:type keylist: List
+    #:param
+    
+    #Parameters: 
+    #keylist: Beskrivelse av keylist 
+    
+    #Returns: 
+    #None: Returns nothing but updates dictionary created earlier
     global ds_dict
     id = travdf + "_id"
     if (len(keylist)>0):
