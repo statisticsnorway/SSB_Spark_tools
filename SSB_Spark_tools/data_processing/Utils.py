@@ -1,9 +1,9 @@
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
     
-def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
+def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     '''
-    This functuion walks a hrarcical datasett stored in memmory,
+    This function walks a hierarcical datasett stored in memmory,
     and returns all packed as unpackked data objects.
     
     The function takes a hirarchical datasett, investigates the schema structre 
@@ -77,7 +77,7 @@ def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
         for socol in cols:
             idstreng.append(socol)
             keylist.append(id)
-            traverse_hiearchy(keylist, socol, df, idstreng, hierarchylevels)
+            traverse_hierarchy(keylist, socol, df, idstreng, hierarchylevels)
             keylist.remove(id)
             df = df.drop(socol)
             idstreng.remove(socol)
@@ -138,7 +138,7 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
 
         for socol in list_col:
             idstreng = [socol]
-            traverse_hiearchy(keylist, socol, parqdf, idstreng, hierarchylevels)
+            traverse_hierarchy(keylist, socol, parqdf, idstreng, hierarchylevels)
             
     return ds_dict.copy()
         
