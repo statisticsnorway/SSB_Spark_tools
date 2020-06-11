@@ -3,15 +3,15 @@ from pyspark.sql.types import *
     
 def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     '''
-    This function walks a hierarcical datasett stored in memory,
-    and returns all packed as unpackked data objects.
+    This function walks through a hierarcical dataset stored in memory,
+    and returns all packed as unpacked data objects.
     
-    The function takes a hirarchical datasett, investigates the schema structre 
-    to find any othe hirarchy ellements of type struct, list,and arrays. 
-    All object found in thhe data obdject are subsequently unnpacked, 
-    and returend as an data object. 
+    The function takes a hirarchical dataset, investigates the schema structre 
+    to find any other hirarchy elements of type struct, list, and arrays. 
+    All objects found in the data object are subsequently unpacked, 
+    and returend as a data object. 
     
-    This is a recursive  function, which ends, when there are no list or array type 
+    This is a recursive function, which ends when there are no list or array type 
     columns left in the original data object. 
     
     The function also allows for level control limiting the depth at which the 
