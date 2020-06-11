@@ -3,7 +3,7 @@ from pyspark.sql.types import *
     
 def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     '''
-    This function walks a hierarcical datasett stored in memmory,
+    This function walks a hierarcical datasett stored in memory,
     and returns all packed as unpackked data objects.
     
     The function takes a hirarchical datasett, investigates the schema structre 
@@ -17,7 +17,7 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     The function also allows for level control limiting the depth at which the 
     function will look for arrays.
     
-    :param keylist: List containing the variables you want to carry forward from the level above, to the level bellow
+    :param keylist: List containing the variables you want to carry forward from the level above, to the level below
     :type keylist: list
     
      
