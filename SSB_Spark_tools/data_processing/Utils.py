@@ -1,7 +1,36 @@
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
     
-def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):        
+def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
+    '''
+    This function walks through a hierarcical dataset stored in memory,
+    and returns all packed as unpacked data objects.
+    
+    The function takes a hirarchical dataset, investigates the schema structre 
+    to find any other hirarchy elements of type struct, list, and arrays. 
+    All objects found in the data object are subsequently unpacked, 
+    and returend as a data object. 
+    
+    This is a recursive function, which ends when there are no list or array type 
+    columns left in the original data object. 
+    
+    The function also allows for level control limiting the depth at which the 
+    function will look for arrays.
+    
+    :param keylist: List containing the variables you want to carry forward from the level above, to the level below
+    :type keylist: list
+    
+     
+    '''
+    #:param keylist: List containing the variables you want to carry forward from the level above, to the level bellow
+    #:type keylist: List
+    #:param
+    
+    #Parameters: 
+    #keylist: Beskrivelse av keylist 
+    
+    #Returns: 
+    #None: Returns nothing but updates dictionary created earlier
     global ds_dict
     id = travdf + "_id"
     if (len(keylist)>0):
@@ -57,7 +86,7 @@ def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
         for socol in cols:
             idstreng.append(socol)
             keylist.append(id)
-            traverse_hiearchy(keylist, socol, df, idstreng, hierarchylevels)
+            traverse_hierarchy(keylist, socol, df, idstreng, hierarchylevels)
             keylist.remove(id)
             df = df.drop(socol)
             idstreng.remove(socol)
@@ -66,16 +95,18 @@ def traverse_hiearchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     ds_dict[dictName]= df.cache()
         
 def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
-    ##parqdf -- Parquetfilen som skal pakkes ut
+    '''
     
-    ##rootdf: True/False: Avgjør om det skal lages et eget datasett for rotnivå uten variablene som skal pakkes ut
-    ##        Liste: Lager et eget datasett med variabler som ligger rot definert i en liste
+    :param parqdf: -- Parquetfilen som skal pakkes ut
+    :type parqdf:
+    :param rootdf: True/False: Avgjør om det skal lages et eget datasett for rotnivå uten variablene som skal pakkes ut
+    :type rootdf: Boolean/list Liste: Lager et eget datasett med variabler som ligger rot definert i en liste
     
-    ##rootvar avgjør hvordan vi skan håndtere variabler på rotnivå. 
-    ## True/False: True -- (default) Her vil alle variabler, som ikke må pakkes ut, på rotnivå også bli med på alle datasett som pakkes ut
-    ##             False -- Variabler på rotnivå vil kun være  med i datasett for roten hvis rootdf er satt til True 
-    ## List: Liste med variabler som skal være med fra rotnivå til datasettene som pakkes ut
-    
+    rootvar avgjør hvordan vi skan håndtere variabler på rotnivå. 
+     True/False: True -- (default) Her vil alle variabler, som ikke må pakkes ut, på rotnivå også bli med på alle datasett som pakkes ut
+                 False -- Variabler på rotnivå vil kun være  med i datasett for roten hvis rootdf er satt til True 
+     List: Liste med variabler som skal være med fra rotnivå til datasettene som pakkes ut
+    '''
     global ds_dict
     ds_dict = {}
     keylist = []
@@ -116,7 +147,7 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
 
         for socol in list_col:
             idstreng = [socol]
-            traverse_hiearchy(keylist, socol, parqdf, idstreng, hierarchylevels)
+            traverse_hierarchy(keylist, socol, parqdf, idstreng, hierarchylevels)
             
     return ds_dict.copy()
         
