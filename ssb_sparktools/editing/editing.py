@@ -1,42 +1,61 @@
+from pyspark import Row
+from pyspark.sql import SparkSession
+from pyspark.sql import SQLContext
+from pyspark.sql.types import *
+from pyspark.sql import DataFrame
+from itertools import chain
+import pyspark.sql.functions as F
+from pyspark import SparkContext
 import pandas as pd
 from collections import OrderedDict
 import numbers
 from pyspark.sql import DataFrame
 
-def missing_df(df):
-    #Parameter df --> datasett som det skal kjøres opptelling av missing for
-    if (isinstance(df, DataFrame)):
-        #Transformerer spark dataframe til pandas dataframe for å kunne benytte pandas funksjoner
-        df = df.toPandas()
 
-        #Omformer datasettet til å inneholde false for celler som ikke har missing verdi og true for celler som har missing verdi
-        df = pd.isna(df)
+def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
+    #Parameter input er:
+    #                    df --> datasett som inneholder variabel med verdier som skal slås opp i kodeliste
+    #                    variabel --> Variabel med verdier som skal slås opp i kodeliste
+    #                    kodeliste --> kodeliste som det skal slås opp i, sendt som spark dataframe
+    #                    nokkelverdi --> python liste ([nøkkelverdi, oppslagsverdi]) som har variabel som inneholder nøkkelverdier som variabel       
+    #                                    (angitt ovenfor) sammenlignes mot og variabel som inneholder oppslagsverdi som vi ønsker tilbake som egen 
+    #                                    variabel på vår datasett
+    
+    #Sjekker om parametre er av korrekt format
+    if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, DataFrame)) & (isinstance(nokkelverdi, type([]))):
+    
+        #Inititerer variabler
+        kodeliste_dict = {}
 
-        #Teller opp boolske verdier for alle variabler, setter de som får missing på opptelling til 0
-        # Dette skjer hvis de ikke har noen missing verdier på variabelen eller at alle er missing
-        df = df.apply(pd.value_counts).fillna(0)
+        #Henter nøkkelvariabel og oppslagsvariabel og lager en dictionary av det 
+        for row in kodeliste.rdd.collect():
+            kodeliste_dict[row[nokkelverdi[0]]] = row[nokkelverdi[1]]
 
-        #Kjører transpose slik at alle variabler er en egen record
-        df = df.transpose()
+        #Gjør oppslag mot dictionary på variabel vi ønsker og oppretter en egen variabel for resultatet av oppslaget
+        mapping_expr = F.create_map([F.lit(x) for x in chain(*kodeliste_dict.items())])
+        df = df.withColumn("{}_kodelisteverdi".format(variabel), mapping_expr.getItem(F.col(variabel))) 
 
-        #Etter transpose er variablene på dataframen bolske verdier, True for antall missing, False for antall ikke missing
-        #Gir de derfor missing nytt navn, sletter ikke missing og beregner andel missing av totalen
-        if 1 in list(df.columns):
-            df.rename(columns={1:"missing"}, inplace=True)
-        else:
-            df['missing'] = 0
-        if 0 in list(df.columns):
-            df['shareoftotal'] = df['missing']/(df['missing'] + df[0])        
-            df.drop(columns=[0], inplace=True)
-        else:
-            df['shareoftotal'] = 1
-
-
+        #Returnere datasettet med ny variabel som resultat av oppslag
         return df
     else:
-        raise Exception('Parameter df må være en dataframe')
-        return
+            #Hvis ikke parametre sendt med funksjonen er korrekt format skrives det ut en feilmelding
+            if not (isinstance(df, DataFrame)):
+                raise Exception('Første parameter må være en dataframe som har variabelen som skal brukes til å slå opp i kodeliste')
+                return
+            if not (isinstance(variabel, str)):
+                raise Exception('Andre parameter må være en string med navnet på variabel som skal brukes til å slå opp i kodeliste')
+                return
 
+            if not (isinstance(kodeliste, DataFrame)):
+                raise Exception('Tredje parameter må være en dataframe som inneholder kodelisten variabel skal slå opp i')
+                return
+            
+            if not (isinstance(kodeliste, type([]))):
+                raise Exception('Fjerde parameter må være en python liste der første verdi er nøkkelvariabel i kodeliste som variabelen\
+                                sammenlignes med og den andre oppslagsvariabel som inneholder verdiene vi ønsker å få med på egen variabel tilbake')
+                return
+            
+            
 def missing_correction_bool(df, correction_value=False, exception_for=[]):
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
     #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
@@ -118,6 +137,3 @@ def missing_correction_number(df, correction_value=0, exception_for=[]):
         if not (isinstance(exception_for, type([]))):
             raise Exception('Parameter exception_for må være liste format')
             return
-
-                                                                                       
-        
