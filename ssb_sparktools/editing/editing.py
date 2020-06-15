@@ -137,3 +137,83 @@ def missing_correction_number(df, correction_value=0, exception_for=[]):
         if not (isinstance(exception_for, type([]))):
             raise Exception('Parameter exception_for må være liste format')
             return
+
+def spark_missing_correction_bool(df, correction_value=False, exception_for=[]):
+    #Parameter df --> datasett som det skal kjøres opptelling av missing for
+    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
+    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+    
+    if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
+        #initialiserer variabler
+        boollist = []
+
+        #Legger alle boolske variabler i en egen liste
+        for k in df.schema.fields:
+            if k.name not in exception_for:
+                if (str(k.dataType) == 'BooleanType'):
+                    boollist.append(k.name)
+        #Lager en logg 
+        df_count = df[boollist].select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df[boollist].columns])
+        df_columns = df_count.columns
+        df_dict_count= {}
+        for row in df_count.rdd.collect():
+            for k in df_columns:
+                if row[k]!=0:
+                    df_dict_count[k] = row[k]
+                
+        #Korrigerer verdier som er boolske
+        df = df.fillna(correction_value, subset=boollist)
+
+        #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel 
+        return df, df_dict_count
+    else:
+        if not (isinstance(df, DataFrame)):
+            raise Exception('Parameter df må være en dataframe')
+            return
+        if not (isinstance(correction_value, numbers.Number)):
+            raise Exception('Parameter correction_value må være boolsk format')
+            return
+        if not (isinstance(exception_for, type([]))):
+            raise Exception('Parameter exception_for må være liste format')
+            return
+
+                                    
+def spark_missing_correction_number(df, correction_value=0, exception_for=[]):
+    #Parameter df --> datasett som det skal kjøres opptelling av missing for
+    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
+    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+
+    if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
+        #initialiserer variabler
+        numlist = []
+
+        #Legger alle numeriske variabler i en egen liste
+        for k in df.schema.fields:
+            if k.name not in exception_for:
+                if str(k.dataType) in ['LongType', 'ByteType', 'ShortType', 'IntegerType', 'FloatType', 'DoubleType', 'DecimalType']:    
+                    numlist.append(k.name)
+        
+        df_count = df[numlist].select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df[numlist].columns])
+        df_columns = df_count.columns
+        df_dict_count= {}
+        for row in df_count.rdd.collect():
+            for k in df_columns:
+                if row[k]!=0:
+                    df_dict_count[k] = row[k]
+        
+        #Korrigerer verdier som er numeriske
+        df = df.fillna(correction_value, subset=numlist)
+
+        #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel
+        return df, df_dict_count
+                            
+    else:
+        if not (isinstance(df, DataFrame)):
+            raise Exception('Parameter df må være en dataframe')
+            return
+        if not (isinstance(correction_value, numbers.Number)):
+            raise Exception('Parameter correction_value må være numerisk format')
+            return
+        if not (isinstance(exception_for, type([]))):
+            raise Exception('Parameter exception_for må være liste format')
+            return
