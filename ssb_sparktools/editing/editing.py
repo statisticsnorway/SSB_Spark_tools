@@ -143,7 +143,21 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
     #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
     #Parameter exception_for --> liste over variable som ikke skal korrigeres
     
-
+ '''
+    This function checks a dataframe for missing values and corrects the missing values to 0. The function can be told not to correct missing to 0 for specific variables,
+    by specifying these variables through the exception_for-paramter. A column containing the name of the dataframe can be added by filling in the df_name-paramter.
+    
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: The value that the missing values are changed to
+    :param exception_for: which value to insert instead of missing 
+    :param df_name: list of variables not to be corrected
+    :type df: dataframe
+    :type correction_value: numeric value 
+    :type exception_for: list
+    :type df_name: string 
+    
+     
+    '''
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
         numlist = []
