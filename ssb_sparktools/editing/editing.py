@@ -148,13 +148,16 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
     dataframes and collecting all logging data in one dataframe outside the function
 
     :param df: The dataframe for which to run the missing correction
-    :param correction_value: The value that the missing values are changed to
-    :param exception_for: which value to insert instead of missing 
-    :param df_name: list of variables not to be corrected
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :param df_name: name of the original dataset
     :type df: dataframe
     :type correction_value: numeric value 
     :type exception_for: list
     :type df_name: string 
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dictionary with log of number of corrections per variable
     
     '''
     
@@ -210,7 +213,28 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
     #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
     #Parameter exception_for --> liste over variable som ikke skal korrigeres
+  
+    '''
     
+    This function checks a dataframe for missing values on Boolean variables and corrects the missing values to the given 
+    value given by the correction_value paramater. If no value is given it defaults to False.
+    The function corrects all Boolean variables except those specified in the exception_for parameter. 
+    If a column is needed to specify the name of the dataframe it can be given in the df_name parameter. Useful if checking multiple 
+    dataframes and collecting all logging data in one dataframe outside the function
+   
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :param df_name: name of the original dataset
+    :type df: dataframe
+    :type correction_value: Boolean 
+    :type exception_for: list
+    :type df_name: string 
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dictionary with log of number of corrections per variable
+    
+    '''  
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
         boollist = []
