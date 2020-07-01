@@ -139,14 +139,14 @@ def missing_correction_number(df, correction_value=0, exception_for=[]):
             return
 
 def spark_missing_correction_number(df, correction_value=0, exception_for=[], df_name=''):
-    #Parameter df --> datasett som det skal kjøres opptelling av missing for
-    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
-    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+    '''
     
- '''
-    This function checks a dataframe for missing values and corrects the missing values to 0. The function can be told not to correct missing to 0 for specific variables,
-    by specifying these variables through the exception_for-paramter. A column containing the name of the dataframe can be added by filling in the df_name-paramter.
-    
+    This function checks a dataframe for missing values on numeric variables and corrects the missing values to the given 
+    value given by the correction_value paramater. If no value is given it defaults to 0.
+    Function corrects all numeric variables except those specified in the exception_for-parameter. 
+    If a column is needed to specify the name of the dataframe it can be given in the df_name-parameter. Useful if checking multiple 
+    dataframes and collecting all logging data in one dataframe outside the function
+
     :param df: The dataframe for which to run the missing correction
     :param correction_value: The value that the missing values are changed to
     :param exception_for: which value to insert instead of missing 
@@ -156,8 +156,8 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
     :type exception_for: list
     :type df_name: string 
     
-     
     '''
+    
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
         numlist = []
