@@ -57,9 +57,24 @@ def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
             
             
 def missing_correction_bool(df, correction_value=False, exception_for=[]):
-    #Parameter df --> datasett som det skal kjøres opptelling av missing for
-    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
-    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+    '''
+    
+    This function checks a dataframe for missing values on Boolean variables and corrects the missing values to the given 
+    value given by the correction_value paramater. If no value is given it defaults to False.
+    The function corrects all Boolean variables except those specified in the exception_for parameter. 
+   
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :type df: dataframe
+    :type correction_value: Boolean 
+    :type exception_for: list
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dictionary with log of number of corrections per variable
+    
+    '''  
+   
     
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
@@ -98,9 +113,24 @@ def missing_correction_bool(df, correction_value=False, exception_for=[]):
 
                                     
 def missing_correction_number(df, correction_value=0, exception_for=[]):
-    #Parameter df --> datasett som det skal kjøres opptelling av missing for
-    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
-    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+    '''
+    
+    This function checks a dataframe for missing values on numeric variables and corrects the missing values to the given 
+    value given by the correction_value paramater. If no value is given it defaults to 0.
+    Function corrects all numeric variables except those specified in the exception_for-parameter. 
+
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :type df: dataframe
+    :type correction_value: numeric value 
+    :type exception_for: list
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dictionary with log of number of corrections per variable
+    
+    '''
+    
 
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
