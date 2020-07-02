@@ -13,13 +13,31 @@ from pyspark.sql import DataFrame
 from functools import reduce
 
 def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
-    #Parameter input er:
-    #                    df --> datasett som inneholder variabel med verdier som skal slås opp i kodeliste
-    #                    variabel --> Variabel med verdier som skal slås opp i kodeliste
-    #                    kodeliste --> kodeliste som det skal slås opp i, sendt som spark dataframe
-    #                    nokkelverdi --> python liste ([nøkkelverdi, oppslagsverdi]) som har variabel som inneholder nøkkelverdier som variabel       
-    #                                    (angitt ovenfor) sammenlignes mot og variabel som inneholder oppslagsverdi som vi ønsker tilbake som egen 
-    #                                    variabel på vår datasett
+    '''
+    
+    This function adds a new variable to a given dataframe. The added variable contains values 
+    that correspond to the values in a variable ine the original dataset. For example, if the
+    the variable on the original dataset is the municipality code, then the function can add
+    the names corresponding to the municipality code.
+     
+    :param df: The dataframe containing the relevant variable
+    :param variabel: the variable containing the values that have a corresponding code list 
+    :param kodeliste: the list of relevant codes
+    :param nokkelverdi: python list ([key value, lookup value]) which has a variable containing key values 
+                        that the variable variabel (indicated above) is compared against and a variable 
+                        containing the lookup values that we want to return back as a new variable on 
+                        our dataset
+    :type df: dataframe
+    :type variabel:  
+    :type kodeliste: list
+    :type nokkelverdi: 
+    
+    Returns: 
+    Dataframe: A data frame (Spark) consisting of the original dataframe updated with a new variable 
+              containing the lookup values corresponding to the values of the variable variabel.
+    
+    '''  
+    
     
     #Sjekker om parametre er av korrekt format
     if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, DataFrame)) & (isinstance(nokkelverdi, type([]))):
