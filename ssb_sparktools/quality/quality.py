@@ -2,6 +2,10 @@ import pandas as pd
 from collections import OrderedDict
 import numbers
 from pyspark.sql import DataFrame
+import pyspark.sql.functions as F
+from pyspark import SparkContext
+from pyspark.sql.types import *
+from pyspark.sql import SQLContext
 
 def missing_df(df):
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
@@ -36,3 +40,50 @@ def missing_df(df):
     else:
         raise Exception('Parameter df må være en dataframe')
         return
+
+def spark_qual_missing(df, df_name=''):
+    sc = SparkContext.getOrCreate()
+    sqlContext = SQLContext(sc)
+    
+    if (isinstance(df, DataFrame)):
+        df_columns = df.columns
+        df_count = df.select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df.columns])
+        df_log = []
+            
+        if len(df_name)>0:
+            missing_variabler = [StructField('dataframe', StringType(), False),\
+                   StructField('variable', StringType(), True),\
+                   StructField('no_missing', IntegerType(), False)]
+            missing_schema = StructType(missing_variabler)
+            
+            for row in df_count.rdd.collect():
+                for col in df_columns:
+                    df_row = {}
+                    df_row['dataframe']= df_name
+                    df_row['variable'] = col
+                    df_row['no_missing'] = row[col]
+                    df_log.append(df_row)
+
+        else:
+            missing_variabler = [StructField('variable', StringType(), True),\
+                   StructField('no_missing', IntegerType(), False)]
+            missing_schema = StructType(missing_variabler)
+           
+            for row in df_count.rdd.collect():
+                for col in df_columns:
+                    df_row = {}
+                    df_row['variable'] = col
+                    df_row['no_missing'] = row[col]
+                    df_log.append(df_row)
+        
+        if len(df_log)>0:
+            rdd_missing = sc.parallelize(df_log)
+            df_missing = sqlContext.createDataFrame(rdd_missing, missing_schema)
+        else:
+            df_missing = sqlContext.createDataFrame(sc.emptyRDD(), missing_schema)
+        
+        return df_missing
+    else:
+        raise Exception('Parameter df må være en dataframe')
+        return    
+    
