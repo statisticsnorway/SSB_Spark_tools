@@ -13,13 +13,31 @@ from pyspark.sql import DataFrame
 from functools import reduce
 
 def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
-    #Parameter input er:
-    #                    df --> datasett som inneholder variabel med verdier som skal slås opp i kodeliste
-    #                    variabel --> Variabel med verdier som skal slås opp i kodeliste
-    #                    kodeliste --> kodeliste som det skal slås opp i, sendt som spark dataframe
-    #                    nokkelverdi --> python liste ([nøkkelverdi, oppslagsverdi]) som har variabel som inneholder nøkkelverdier som variabel       
-    #                                    (angitt ovenfor) sammenlignes mot og variabel som inneholder oppslagsverdi som vi ønsker tilbake som egen 
-    #                                    variabel på vår datasett
+    '''
+    
+    This function adds a new variable to a given dataframe. The added variable contains values 
+    that correspond to the values in a variable ine the original dataset. For example, if the
+    the variable on the original dataset is the municipality code, then the function can add
+    the names corresponding to the municipality code.
+     
+    :param df: The dataframe containing the relevant variable
+    :param variabel: the variable containing the values that have a corresponding code list 
+    :param kodeliste: the list of relevant codes
+    :param nokkelverdi: python list ([key value, lookup value]) which has a variable containing key values 
+                        that the variable variabel (indicated above) is compared against and a variable 
+                        containing the lookup values that we want to return back as a new variable on 
+                        our dataset
+    :type df: dataframe
+    :type variabel:  
+    :type kodeliste: list
+    :type nokkelverdi: 
+    
+    Returns: 
+    Dataframe: A data frame (Spark) consisting of the original dataframe updated with a new variable 
+              containing the lookup values corresponding to the values of the variable variabel.
+    
+    '''  
+    
     
     #Sjekker om parametre er av korrekt format
     if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, DataFrame)) & (isinstance(nokkelverdi, type([]))):
@@ -56,10 +74,25 @@ def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
                 return
             
             
-def missing_correction_bool(df, correction_value=False, exception_for=[]):
-    #Parameter df --> datasett som det skal kjøres opptelling av missing for
-    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
-    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+def missing_correction_bool(df, correction_value=False, exception_for=[], df_name=''):
+    '''
+    
+    This function checks a dataframe for missing values on Boolean variables and corrects the missing values to the given 
+    value given by the correction_value parameter. If no value is given it defaults to False.
+    The function corrects all Boolean variables except those specified in the exception_for parameter. 
+   
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :type df: dataframe
+    :type correction_value: Boolean 
+    :type exception_for: list
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    
+    '''  
+   
     
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
@@ -75,16 +108,34 @@ def missing_correction_bool(df, correction_value=False, exception_for=[]):
         df_count = df[boollist].toPandas()
         df_count = df_count.isnull().sum()
         df_count = df_count.to_dict(OrderedDict)
-        df_dict_count= {}
-        for k, v in df_count.items():
-            if v != 0:
-                df_dict_count[k] = v
-
+        df_log = []
+        if len(df_name)>0:
+            corrected_missing_log = pd.DataFrame(columns=['dataframe', 'datatype', 'variabel', 'korrigeringer'])
+            for k, v in df_count.items():
+                if v != 0:
+                    df_dict_count= {}
+                    df_dict_count['dataframe'] = df_name
+                    df_dict_count['variabel'] = k
+                    df_dict_count['datatype'] = 'boolean'
+                    df_dict_count['korrigeringer'] = v
+                    df_log.append(df_dict_count)
+        else:
+            corrected_missing_log = pd.DataFrame(columns=['datatype', 'variabel', 'korrigeringer'])
+            for k, v in df_count.items():
+                if v != 0:
+                    df_dict_count= {}
+                    df_dict_count['variabel'] = k
+                    df_dict_count['datatype'] = 'boolean'
+                    df_dict_count['korrigeringer'] = v
+                    df_log.append(df_dict_count)
+                    
+        df_log_df = pd.DataFrame(df_log)            
+        
         #Korrigerer verdier som er boolske
         df = df.fillna(correction_value, subset=boollist)
 
         #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel 
-        return df, df_dict_count
+        return df, df_log_df
     else:
         if not (isinstance(df, DataFrame)):
             raise Exception('Parameter df må være en dataframe')
@@ -97,10 +148,25 @@ def missing_correction_bool(df, correction_value=False, exception_for=[]):
             return
 
                                     
-def missing_correction_number(df, correction_value=0, exception_for=[]):
-    #Parameter df --> datasett som det skal kjøres opptelling av missing for
-    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
-    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+def missing_correction_number(df, correction_value=0, exception_for=[], df_name=''):
+    '''
+    
+    This function checks a dataframe for missing values on numeric variables and corrects the missing values to the given 
+    value given by the correction_value parameter. If no value is given it defaults to 0.
+    Function corrects all numeric variables except those specified in the exception_for-parameter. 
+
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :type df: dataframe
+    :type correction_value: numeric value 
+    :type exception_for: list
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    
+    '''
+    
 
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
@@ -116,16 +182,35 @@ def missing_correction_number(df, correction_value=0, exception_for=[]):
         df_count = df[numlist].toPandas()
         df_count = df_count.isnull().sum()
         df_count = df_count.to_dict(OrderedDict)
-        df_dict_count= {}
-        for k, v in df_count.items():
-            if v != 0:
-                df_dict_count[k] = v
+        
+        df_log = []
+        if len(df_name)>0:
+            corrected_missing_log = pd.DataFrame(columns=['dataframe', 'datatype', 'variabel', 'korrigeringer'])
+            for k, v in df_count.items():
+                if v != 0:
+                    df_dict_count= {}
+                    df_dict_count['dataframe'] = df_name
+                    df_dict_count['variabel'] = k
+                    df_dict_count['datatype'] = 'numeric'
+                    df_dict_count['korrigeringer'] = v
+                    df_log.append(df_dict_count)
+        else:
+            corrected_missing_log = pd.DataFrame(columns=['datatype', 'variabel', 'korrigeringer'])
+            for k, v in df_count.items():
+                if v != 0:
+                    df_dict_count= {}
+                    df_dict_count['variabel'] = k
+                    df_dict_count['datatype'] = 'numeric'
+                    df_dict_count['korrigeringer'] = v
+                    df_log.append(df_dict_count)
 
+        df_log_df = pd.DataFrame(df_log)
+        
         #Korrigerer verdier som er numeriske
         df = df.fillna(correction_value, subset=numlist)
 
         #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel
-        return df, df_dict_count
+        return df, df_log_df
                             
     else:
         if not (isinstance(df, DataFrame)):
@@ -139,13 +224,32 @@ def missing_correction_number(df, correction_value=0, exception_for=[]):
             return
 
 def spark_missing_correction_number(df, correction_value=0, exception_for=[], df_name=''):
-    #Parameter df --> datasett som det skal kjøres opptelling av missing for
-    #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
-    #Parameter exception_for --> liste over variable som ikke skal korrigeres
+    '''
     
+    This function checks a dataframe for missing values on numeric variables and corrects the missing values to the given 
+    value given by the correction_value parameter. If no value is given it defaults to 0.
+    Function corrects all numeric variables except those specified in the exception_for-parameter. 
+    If a column is needed to specify the name of the dataframe it can be given in the df_name-parameter. Useful if checking multiple 
+    dataframes and collecting all logging data in one dataframe outside the function
 
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :param df_name: name of the original dataset
+    :type df: dataframe
+    :type correction_value: numeric value 
+    :type exception_for: list
+    :type df_name: string 
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    
+    '''
+    
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
+        sc = SparkContext.getOrCreate()
+        sqlContext = SQLContext(sc)
         numlist = []
 
         #Legger alle numeriske variabler i en egen liste
@@ -158,28 +262,51 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
         
         df_count = df[numlist].select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df[numlist].columns])
         df_columns = df_count.columns
-        df_dict_count= {}
+        df_log = []
+        
         if len(df_name)>0:
+            missing_variabler = [StructField('dataframe', StringType(), False),\
+                   StructField('variabel', StringType(), True),\
+                   StructField('datatype', StringType(), True),\
+                   StructField('korrigeringer', IntegerType(), False)]
+            missing_schema = StructType(missing_variabler)
+            
+
             for row in df_count.rdd.collect():
                 for k in df_columns:
                     if row[k]!=0:
+                        df_dict_count= {}
                         df_dict_count['dataframe'] = df_name
                         df_dict_count['variabel'] = k
-                        df_dict_count['korrigeringer'] = row[k]  
+                        df_dict_count['datatype'] = 'numeric'
+                        df_dict_count['korrigeringer'] = row[k]
+                        df_log.append(df_dict_count)
         else:
+            missing_variabler = [StructField('variabel', StringType(), True),\
+                   StructField('korrigeringer', IntegerType(), False)]
+            missing_schema = StructType(missing_variabler)
+            
             for row in df_count.rdd.collect():
                 for k in df_columns:
                     if row[k]!=0:
+                        df_dict_count= {}
                         df_dict_count['variabel'] = k
+                        df_dict_count['datatype'] = 'numeric'
                         df_dict_count['korrigeringer'] = row[k]
-
+                        df_log.append(df_dict_count)
+        
+        if len(df_log)>0:
+            rdd_missing = sc.parallelize(df_log)
+            df_corrections = sqlContext.createDataFrame(rdd_missing, missing_schema)
+        else:
+            df_corrections = sqlContext.createDataFrame(sc.emptyRDD(), missing_schema)
         
              
         #Korrigerer verdier som er numeriske
         df = df.fillna(correction_value, subset=numlist)
 
         #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel
-        return df, df_dict_count
+        return df, df_corrections
         
     else:
         if not (isinstance(df, DataFrame)):
@@ -196,9 +323,32 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
     #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
     #Parameter exception_for --> liste over variable som ikke skal korrigeres
+  
+    '''
     
+    This function checks a dataframe for missing values on Boolean variables and corrects the missing values to the given 
+    value given by the correction_value parameter. If no value is given it defaults to False.
+    The function corrects all Boolean variables except those specified in the exception_for parameter. 
+    If a column is needed to specify the name of the dataframe it can be given in the df_name parameter. Useful if checking multiple 
+    dataframes and collecting all logging data in one dataframe outside the function
+   
+    :param df: The dataframe for which to run the missing correction
+    :param correction_value: which value to insert instead of missing
+    :param exception_for: list of variables not to be corrected 
+    :param df_name: name of the original dataset
+    :type df: dataframe
+    :type correction_value: Boolean 
+    :type exception_for: list
+    :type df_name: string 
+    
+    Returns: 
+    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    
+    '''  
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
+        sc = SparkContext.getOrCreate()
+        sqlContext = SQLContext(sc)
         boollist = []
 
         #Legger alle boolske variabler i en egen liste
@@ -209,27 +359,50 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
         #Lager en logg 
         df_count = df[boollist].select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df[boollist].columns])
         df_columns = df_count.columns
-        df_dict_count= {}
+        df_log = []
+        
         if len(df_name)>0:
+            missing_variabler = [StructField('dataframe', StringType(), False),\
+                   StructField('variabel', StringType(), True),\
+                   StructField('datatype', StringType(), True),\
+                   StructField('korrigeringer', IntegerType(), False)]
+            missing_schema = StructType(missing_variabler)
+            
+
             for row in df_count.rdd.collect():
                 for k in df_columns:
                     if row[k]!=0:
+                        df_dict_count= {}
                         df_dict_count['dataframe'] = df_name
                         df_dict_count['variabel'] = k
-                        df_dict_count['korrigeringer'] = row[k]  
+                        df_dict_count['datatype'] = 'boolean'
+                        df_dict_count['korrigeringer'] = row[k]
+                        df_log.append(df_dict_count)
         else:
+            missing_variabler = [StructField('variabel', StringType(), True),\
+                   StructField('korrigeringer', IntegerType(), False)]
+            missing_schema = StructType(missing_variabler)
+            
             for row in df_count.rdd.collect():
                 for k in df_columns:
                     if row[k]!=0:
+                        df_dict_count= {}
                         df_dict_count['variabel'] = k
+                        df_dict_count['datatype'] = 'boolean'
                         df_dict_count['korrigeringer'] = row[k]
-
-
-            #Korrigerer verdier som er boolske
+                        df_log.append(df_dict_count)
+        
+        if len(df_log)>0:
+            rdd_missing = sc.parallelize(df_log)
+            df_corrections = sqlContext.createDataFrame(rdd_missing, missing_schema)
+        else:
+            df_corrections = sqlContext.createDataFrame(sc.emptyRDD(), missing_schema)
+            
+        #Korrigerer verdier som er boolske
         df = df.fillna(correction_value, subset=boollist)
 
             #Returnerer korrigert dataframe (spark) og dictionary med log over antall korrigeringer per variabel 
-        return df, df_dict_count
+        return df, df_corrections
         
     else:
         if not (isinstance(df, DataFrame)):
