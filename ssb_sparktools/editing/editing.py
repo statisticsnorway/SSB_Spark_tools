@@ -16,7 +16,7 @@ def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
     '''
     
     This function adds a new variable to a given dataframe. The added variable contains values 
-    that correspond to the values in a variable ine the original dataset. For example, if the
+    that correspond to the values in a variable in the original dataset. For example; if the
     the variable on the original dataset is the municipality code, then the function can add
     the names corresponding to the municipality code.
      
@@ -28,9 +28,9 @@ def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
                         containing the lookup values that we want to return back as a new variable on 
                         our dataset
     :type df: dataframe
-    :type variabel:  
-    :type kodeliste: list
-    :type nokkelverdi: 
+    :type variabel: string  
+    :type kodeliste: dataframe
+    :type nokkelverdi: python list 
     
     Returns: 
     Dataframe: A data frame (Spark) consisting of the original dataframe updated with a new variable 
@@ -88,8 +88,9 @@ def missing_correction_bool(df, correction_value=False, exception_for=[], df_nam
     :type correction_value: Boolean 
     :type exception_for: list
     
-    Returns: 
-    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    Returns: 2 dataframes
+    Dataframe: corrected dataframe (Spark) 
+    Dataframe: dataframe (Pandas) with log of number of corrections per variable
     
     '''  
    
@@ -162,8 +163,9 @@ def missing_correction_number(df, correction_value=0, exception_for=[], df_name=
     :type correction_value: numeric value 
     :type exception_for: list
     
-    Returns: 
-    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    Returns: 2 dataframes
+    Dataframe: corrected dataframe (Spark) 
+    Dataframe: dataframe (Pandas) with log of number of corrections per variable
     
     '''
     
@@ -241,8 +243,9 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
     :type exception_for: list
     :type df_name: string 
     
-    Returns: 
-    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    Returns: 2 dataframes
+    Dataframe: Returns corrected dataframe (Spark) 
+    Dataframe: dataframe (Pandas) with log of number of corrections per variable
     
     '''
     
@@ -341,8 +344,9 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
     :type exception_for: list
     :type df_name: string 
     
-    Returns: 
-    Dataframe: Returns corrected data frame (Spark) and dataframe (Pandas) with log of number of corrections per variable
+    Returns: 2 dataframes
+    Dataframe: corrected dataframe (Spark) 
+    Dataframe: dataframe (Pandas) with log of number of corrections per variable
     
     '''  
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):

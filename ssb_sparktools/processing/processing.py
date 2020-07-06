@@ -29,7 +29,7 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     :type hierarchylevels: numeric value
     
      Returns: 
-     None: Returns nothing but updates dictionary created earlier
+     None: Returns nothing, but updates dictionary created earlier
     
     '''
     
@@ -130,7 +130,7 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
     :param levels: tells the function how many hierarchy levels the dataset consists of
     :type levels: numerical value
     
-     Returns: 
+     Returns: a dictionary
      Dictionary: A dictionary of unpacked dataframes.
     '''
     
@@ -196,7 +196,7 @@ def cross_sectional(df, event_var, event_id, coDate=None):
     :param coDate: the date at which the cross sectional dataset is taken.
     :type coDate: time/date 
     
-    Returns:
+    Returns:a dataframe
     Dataframe: A cross sectional dataframe.
     '''
     if coDate!=None:
