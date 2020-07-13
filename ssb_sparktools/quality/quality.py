@@ -8,6 +8,19 @@ from pyspark.sql.types import *
 from pyspark.sql import SQLContext
 
 def missing_df(df):
+    '''
+    
+    This function counts the number of missing on each variable in a dataset.
+     
+    :param df: The dataframe for which to run missing count
+    
+    :type df: dataframe
+    
+    Returns: a dataframe
+    Dataframe: A dataframe with one row for each variable in the original dataset and the share of missing on each variable.
+    
+    '''  
+    
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
     if (isinstance(df, DataFrame)):
         #Transformerer spark dataframe til pandas dataframe for å kunne benytte pandas funksjoner

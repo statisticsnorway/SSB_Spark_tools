@@ -19,18 +19,20 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     
     :param keylist: List containing the variables you want to carry forward from the level above, to the level below
     :type keylist: list
+    :param travdf: 
+    :type travdf: 
+    :param parqdf: The hierarchical dataset that you are investigating 
+    :type parqdf: dataframe
+    :param idstreng: 
+    :type idstreng: 
+    :param hierarchylevels: controls the depth at which the funcrion will look for arrays 
+    :type hierarchylevels: numeric value
     
-     
+     Returns: 
+     None: Returns nothing, but updates dictionary created earlier
+    
     '''
-    #:param keylist: List containing the variables you want to carry forward from the level above, to the level bellow
-    #:type keylist: List
-    #:param
     
-    #Parameters: 
-    #keylist: Beskrivelse av keylist 
-    
-    #Returns: 
-    #None: Returns nothing but updates dictionary created earlier
     global ds_dict
     id = travdf + "_id"
     if (len(keylist)>0):
@@ -95,18 +97,43 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     ds_dict[dictName]= df.cache()
         
 def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
+    
+    '''
+    This function unpacks a hierarchical parquet dataframe.
+    
+    The parameter rootdf is used to decide whether to create a separate root level dataset without the variables to 
+    be extracted. 
+        Usage: 
+        True: a root level dataset is made. 
+        False: a root level dataset is not made. 
+        List: a dataset with root level variables defined in a list. The default value is False.
+
+    The parameter rootvar is used to tell how the variables at the root level are to be treated.
+        Usage: 
+        True: all variables, which do not need to be unpacked, at the root level, will also be included in all data sets that are unpacked.
+        False: root-level variables will only be included in the root dataset if rootdf is set to True.
+        List: List of variables to include from root level to the extracted datasets
+    
+    The levels parameter tells the function how many hierarchy levels it will traverse and unpack. 
+        Usage:
+        Default value is -1, which means that the function traverses the whole hierarchy and unpacks all objects. 
+        0: means that it doesn't unpack anything, only the root variables.
+        1: the function unpacks one level  
+        2: the function unpacks two levels etc.
+    
+    :param parqdf: The hierarchical Parquet dataframe to be unpacked.
+    :type parqdf: dataframe 
+    :param rootdf: Decides whether to create a separate root level dataset without the variables to be extracted.
+    :type rootdf: Boolean/list 
+    :rootvar: tells how the variables at the root level are to be treated.
+    :type rootvar: Boolean/list
+    :param levels: tells the function how many hierarchy levels the dataset consists of
+    :type levels: numerical value
+    
+     Returns: a dictionary
+     Dictionary: A dictionary of unpacked dataframes.
     '''
     
-    :param parqdf: -- Parquetfilen som skal pakkes ut
-    :type parqdf:
-    :param rootdf: True/False: Avgjør om det skal lages et eget datasett for rotnivå uten variablene som skal pakkes ut
-    :type rootdf: Boolean/list Liste: Lager et eget datasett med variabler som ligger rot definert i en liste
-    
-    rootvar avgjør hvordan vi skan håndtere variabler på rotnivå. 
-     True/False: True -- (default) Her vil alle variabler, som ikke må pakkes ut, på rotnivå også bli med på alle datasett som pakkes ut
-                 False -- Variabler på rotnivå vil kun være  med i datasett for roten hvis rootdf er satt til True 
-     List: Liste med variabler som skal være med fra rotnivå til datasettene som pakkes ut
-    '''
     global ds_dict
     ds_dict = {}
     keylist = []
@@ -152,6 +179,26 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
     return ds_dict.copy()
         
 def cross_sectional(df, event_var, event_id, coDate=None):
+    '''
+    This function makes a cross sectional dataset of the last record before a defined date
+    for all uniquely identified units in a dataframe (df).
+    The date for which the cross sectional dataset is made is defined in the parameter coDate; 
+    if noe date is given, the default date is today.
+    The records unique id is defined in the parameter event_id. 
+    The time at which the event happens is given in the variable event_var.
+    
+    :param df: The dataframe of observations from which to make a cross sectional dataset 
+    :type df: dataframe 
+    :param event_var: a variable containing the date at which the event happened
+    :type event_var:  time/date 
+    :param event_id: the variables that uniquely define a record
+    :type event_id: list
+    :param coDate: the date at which the cross sectional dataset is taken.
+    :type coDate: time/date 
+    
+    Returns:a dataframe
+    Dataframe: A cross sectional dataframe.
+    '''
     if coDate!=None:
         df = df.filter(F.col(event_var) <= coDate)
     

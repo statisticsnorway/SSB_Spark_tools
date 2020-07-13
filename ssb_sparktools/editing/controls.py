@@ -8,14 +8,33 @@ import pyspark.sql.functions as F
 from pyspark import SparkContext
 
 def listcode_check(df, variabel, kodeliste):
-    #Parameter input er:
-    #                    df --> datasett som inneholder variabel som skal kontrolleres
-    #                    variabel --> Variabel som skal kontrolleres
-    #                    kodeliste --> kodeliste som variabel skal sjekkes mot, sendt som python liste
+    '''
     
-    #Sjekker om parametre er korrekt format    
+    This function checks the values of a variable in a dataframe against a given code list
+    and makes a new dataframe containing these values, a count of how many times the value occurs
+    and a variable indicating whether or not this value existed in the code list or not.
+    In addition, the function returns a Boolean variable indicating whether the variable included
+    one or more values outside the code list or not.
+     
+    :param df: dataframe containing variable to be controlled
+    :param variabel: variable to be checked against the code list 
+    :param kodeliste: code list that the variable should be checked against, sent as a python list
+    
+    :type df: dataframe
+    :type variabel: string 
+    :type kodeliste: list
+    
+    Returns: a dataframe and a Boolean variable.
+    Dataframe: A data frame (Spark) consisting of the values found in the variabel,
+               the number of times the value occurs and a Boolean value telling wheter or not
+               the value exists in the relevant code list or not.
+    Boolean variable: A Boolean variable indicating wheteher or not there exists one or more values in
+               the variable that did not exist in the codelist.
+    '''  
+ 
+    #Sjekker om parametre er av korrekt format       
     if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, type([]))):
-        
+            
         #Kopierer over spark context og setter opp peker til context som brukes i forbindelse med oppretting av nytt datasett
         sc = SparkContext.getOrCreate()
         sqlContext = SQLContext(sc)
