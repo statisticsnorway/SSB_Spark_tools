@@ -12,35 +12,35 @@ import numbers
 from pyspark.sql import DataFrame
 from functools import reduce
 
-def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
+def listcode_lookup(df, luvar, kodeliste, nokkelverdi):
     '''
     
     This function adds a new variable to a given dataframe. The added variable contains values 
     that correspond to the values in a variable in the original dataset. For example; if the
     the variable on the original dataset is the municipality code, then the function can add
-    the names corresponding to the municipality code.
+    the name of the municipality corresponding to the municipality code.
      
-    :param df: The dataframe containing the relevant variable
-    :param variabel: the variable containing the values that have a corresponding code list 
-    :param kodeliste: the list of relevant codes
-    :param nokkelverdi: python list ([key value, lookup value]) which has a variable containing key values 
-                        that the variable variabel (indicated above) is compared against and a variable 
-                        containing the lookup values that we want to return back as a new variable on 
-                        our dataset
-    :type df: dataframe
-    :type variabel: string  
+    :param df: The dataframe containing the variable of interest
+    :param luvar: the name of the variable of interest in the supplied dataframe  
+    :param kodeliste: the list of codes to use for lookup 
+    :param nokkelverdi: Python list ([key value, lookup value]). Key value is the name of the 
+                        variable in the list of codes which corresponds to the variable of 
+                        interest in the dataframe. Lookup value is the name of the variable
+                        in the list of codes to be returned and added to the dataframe.                  
+    :type df: Spark dataframe
+    :type luvar: string  
     :type kodeliste: dataframe
-    :type nokkelverdi: python list 
+    :type nokkelverdi: list 
     
     Returns: 
-    Dataframe: A data frame (Spark) consisting of the original dataframe updated with a new variable 
-              containing the lookup values corresponding to the values of the variable variabel.
+    Dataframe: Spark dataframe consisting of the original dataframe updated with a new variable 
+              containing the lookup values corresponding to the values of the variable luvar.
     
     '''  
     
     
     #Sjekker om parametre er av korrekt format
-    if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, DataFrame)) & (isinstance(nokkelverdi, type([]))):
+    if (isinstance(df, DataFrame)) & (isinstance(luvar, str)) & (isinstance(kodeliste, DataFrame)) & (isinstance(nokkelverdi, type([]))):
     
         #Inititerer variabler
         kodeliste_dict = {}
@@ -51,7 +51,7 @@ def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
 
         #Gjør oppslag mot dictionary på variabel vi ønsker og oppretter en egen variabel for resultatet av oppslaget
         mapping_expr = F.create_map([F.lit(x) for x in chain(*kodeliste_dict.items())])
-        df = df.withColumn("{}_kodelisteverdi".format(variabel), mapping_expr.getItem(F.col(variabel))) 
+        df = df.withColumn("{}_kodelisteverdi".format(luvar), mapping_expr.getItem(F.col(luvar))) 
 
         #Returnere datasettet med ny variabel som resultat av oppslag
         return df
@@ -60,7 +60,7 @@ def listcode_lookup(df, variabel, kodeliste, nokkelverdi):
             if not (isinstance(df, DataFrame)):
                 raise Exception('Første parameter må være en dataframe som har variabelen som skal brukes til å slå opp i kodeliste')
                 return
-            if not (isinstance(variabel, str)):
+            if not (isinstance(luvar, str)):
                 raise Exception('Andre parameter må være en string med navnet på variabel som skal brukes til å slå opp i kodeliste')
                 return
 
