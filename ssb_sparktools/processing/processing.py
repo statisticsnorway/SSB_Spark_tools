@@ -6,22 +6,21 @@ import datetime
 def cross_sectional(df, event_var, event_id, coDate=None):
     '''
     This function makes a cross sectional dataset of the last record before a defined date
-    for all uniquely identified units in a dataframe (df).
+    for records defined in event_id.
     The date for which the cross sectional dataset is made is defined in the parameter coDate; 
-    if noe date is given, the default date is today.
-    The records unique id is defined in the parameter event_id. 
+    if no date is given, the default date is today. 
     The time at which the event happens is given in the variable event_var.
     
     :param df: The dataframe of observations from which to make a cross sectional dataset 
     :type df: dataframe 
-    :param event_var: a variable containing the date at which the event happened
-    :type event_var:  time/date 
-    :param event_id: the variables that uniquely define a record
+    :param event_var: Name of the column in the dataframe containing the date at which the event happened
+    :type event_var: string 
+    :param event_id: The combination of variables from which the last occurrence on event_var will be returned 
     :type event_id: list
-    :param coDate: the date at which the cross sectional dataset is taken.
-    :type coDate: time/date 
+    :param coDate: The max date for events on event_var
+    :type coDate: datetime/timestamp
     
-    Returns:a dataframe
+    Returns: a dataframe
     Dataframe: A cross sectional dataframe.
     '''
     if (isinstance(df, DataFrame)) & (isinstance(event_var, str)) & (isinstance(event_id, list)) & \
@@ -44,19 +43,19 @@ def cross_sectional(df, event_var, event_id, coDate=None):
             
     else:
         if not (isinstance(df, DataFrame)):
-                raise Exception('Første parameter må være en dataframe som det skal tas et tverrsnitt av')
+                raise Exception('Første parameter må være en dataframe.')
                 return
             
         if not (isinstance(event_var, str)):
-            raise Exception('Andre parameter må være en string med navnet på dato variabel som det tas et tverrsnitt ut fra')
+            raise Exception('Andre parameter må være en string.')
             return
 
         if not (isinstance(event_id, list)):
-            raise Exception('Tredje parameter må være en liste variable som.. HER MÅ DET KOMME TEKST')
+            raise Exception('Tredje parameter må være en liste med variable.')
             return
 
         if not ((coDate==None) | (isinstance(coDate, datetime.datetime))):
-            raise Exception('Fjerde parameter må være en dato som det tas et tverrsnitt på eller blank...MER')
+            raise Exception('Fjerde parameter må være en dato.')
             return
 
         
