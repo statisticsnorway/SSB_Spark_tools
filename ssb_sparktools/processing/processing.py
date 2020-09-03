@@ -1,6 +1,8 @@
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
-
+from pyspark.sql import DataFrame
+import datetime
+            
 def cross_sectional(df, event_var, event_id, coDate=None):
     '''
     This function makes a cross sectional dataset of the last record before a defined date
@@ -22,16 +24,43 @@ def cross_sectional(df, event_var, event_id, coDate=None):
     Returns:a dataframe
     Dataframe: A cross sectional dataframe.
     '''
-    if coDate!=None:
-        df = df.filter(F.col(event_var) <= coDate)
-    
-    eventlist_ids = event_id.copy()
-    eventlist_ids.append(event_var)
-    
-    df_cross = df.join(df.groupBy(event_id).agg(F.max(event_var).alias(event_var)),\
-                          eventlist_ids, how='inner')
-    return df_cross
+    if (isinstance(df, DataFrame)) & (isinstance(event_var, str)) & (isinstance(event_id, list)) & \
+        ((coDate==None) | (isinstance(coDate, datetime.datetime))):
+        if (([dtype for name, dtype in df.dtypes if name == event_var][0])=='timestamp'):
+        
+            if coDate!=None:
+                df = df.filter(F.col(event_var) <= coDate)
 
+            eventlist_ids = event_id.copy()
+            eventlist_ids.append(event_var)
+
+            df_cross = df.join(df.groupBy(event_id).agg(F.max(event_var).alias(event_var)),\
+                                  eventlist_ids, how='inner')
+            return df_cross
+        else:
+            if not (([dtype for name, dtype in df.dtypes if name == event_var][0])=='timestamp'):
+                raise Exception('Variabel event_var i dataframe må ha datatype timestamp')
+                return
+            
+    else:
+        if not (isinstance(df, DataFrame)):
+                raise Exception('Første parameter må være en dataframe som det skal tas et tverrsnitt av')
+                return
+            
+        if not (isinstance(event_var, str)):
+            raise Exception('Andre parameter må være en string med navnet på dato variabel som det tas et tverrsnitt ut fra')
+            return
+
+        if not (isinstance(event_id, list)):
+            raise Exception('Tredje parameter må være en liste variable som.. HER MÅ DET KOMME TEKST')
+            return
+
+        if not ((coDate==None) | (isinstance(coDate, datetime.datetime))):
+            raise Exception('Fjerde parameter må være en dato som det tas et tverrsnitt på eller blank...MER')
+            return
+
+        
+            
 def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     '''
     This function walks through a hierarcical dataset stored in memory,
