@@ -10,14 +10,14 @@ from pyspark.sql import SQLContext
 def missing_df(df):
     '''
     
-    This function counts the number of missing on each variable in a dataset.
+    This function counts the number of missing on each variable in a spark dataframe and returns the result as a pandas dataframe.
      
-    :param df: The dataframe for which to run missing count
+    :param df: The spark dataframe for which to run missing count.
     
     :type df: dataframe
     
-    Returns: a dataframe
-    Dataframe: A dataframe with one row for each variable in the original dataset and the share of missing on each variable.
+    Returns: a pandas dataframe
+    Dataframe: A pandas dataframe with one row for each variable in the original dataset and the share of missing on each variable.
     
     '''  
     
@@ -55,6 +55,19 @@ def missing_df(df):
         return
 
 def spark_qual_missing(df, df_name=''):
+     '''
+    
+    This function counts the number of missing on each variable in a spark dataframe and returns the result as a spark dataframe.
+     
+    :param df: The spark dataframe for which to run missing count.
+    :type df: dataframe
+    :param df_name: Optional. Name of dataframe added as a column. Default is none.
+    :type df_name: string
+    
+    Returns: a spark dataframe
+    Dataframe: A spark dataframe with one row for each variable in the original dataset and the share of missing on each variable.
+    
+    '''  
     sc = SparkContext.getOrCreate()
     sqlContext = SQLContext(sc)
     
