@@ -19,7 +19,7 @@ def missing_df(df):
     Returns: a pandas dataframe
     Dataframe: A pandas dataframe with one row for each variable in the original dataset and the share of missing on each variable.
     
-    '''  
+    '''
     
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
     if (isinstance(df, DataFrame)):
@@ -55,7 +55,8 @@ def missing_df(df):
         return
 
 def spark_qual_missing(df, df_name=''):
-     '''
+    
+    '''
     
     This function counts the number of missing on each variable in a spark dataframe and returns the result as a spark dataframe.
      
@@ -67,7 +68,8 @@ def spark_qual_missing(df, df_name=''):
     Returns: a spark dataframe
     Dataframe: A spark dataframe with one row for each variable in the original dataset and the share of missing on each variable.
     
-    '''  
+    '''
+    
     sc = SparkContext.getOrCreate()
     sqlContext = SQLContext(sc)
     
