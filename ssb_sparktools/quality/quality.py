@@ -74,7 +74,6 @@ def spark_qual_missing(df, df_name=''):
     sqlContext = SQLContext(sc)
     
     if (isinstance(df, DataFrame)):
-        df_columns = df.columns
         df_count = df.select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df.columns])
         count_tot = df.count()
         df_log = []
