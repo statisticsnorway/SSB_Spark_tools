@@ -286,7 +286,8 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
                         df_log.append(df_dict_count)
         else:
             missing_variabler = [StructField('variabel', StringType(), True),\
-                   StructField('korrigeringer', IntegerType(), False)]
+                   StructField('datatype', StringType(), True),\
+                   StructField('corrections', IntegerType(), False)]
             missing_schema = StructType(missing_variabler)
             
             for row in df_count.rdd.collect():
@@ -379,7 +380,8 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
                         df_log.append(df_dict_count)
         else:
             missing_variabler = [StructField('variabel', StringType(), True),\
-                   StructField('korrigeringer', IntegerType(), False)]
+                   StructField('datatype', StringType(), True),\
+                   StructField('corrections', IntegerType(), False)]
             missing_schema = StructType(missing_variabler)
             
             for row in df_count.rdd.collect():
