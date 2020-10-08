@@ -74,34 +74,50 @@ def spark_qual_missing(df, df_name=''):
     sqlContext = SQLContext(sc)
     
     if (isinstance(df, DataFrame)):
-        df_columns = df.columns
         df_count = df.select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df.columns])
+        count_tot = df.count()
         df_log = []
             
         if len(df_name)>0:
             missing_variabler = [StructField('dataframe', StringType(), False),\
                    StructField('variable', StringType(), True),\
-                   StructField('no_missing', IntegerType(), False)]
+                   StructField('datatype', StringType(), True),\
+                   StructField('obs_total', IntegerType(), False),\
+                   StructField('obs_missing', IntegerType(), False),\
+                   StructField('percentage_missing', FloatType(), False)]
             missing_schema = StructType(missing_variabler)
             
             for row in df_count.rdd.collect():
-                for col in df_columns:
+                for k in df.schema.fields:
                     df_row = {}
+                    
                     df_row['dataframe']= df_name
-                    df_row['variable'] = col
-                    df_row['no_missing'] = row[col]
+                    df_row['variable'] = k.name
+                    df_row['datatype'] =str(k.dataType)
+                    df_row['obs_total'] = count_tot
+                    df_row['obs_missing'] = row[k.name]
+                    df_row['percentage_missing'] = (row[k.name]/count_tot)*100 
+                    
                     df_log.append(df_row)
 
         else:
             missing_variabler = [StructField('variable', StringType(), True),\
-                   StructField('no_missing', IntegerType(), False)]
+                                 StructField('datatype', StringType(), True),\
+                                 StructField('obs_total', IntegerType(), False),\
+                                 StructField('obs_missing', IntegerType(), False),\
+                                 StructField('percentage_missing', FloatType(), False)]
             missing_schema = StructType(missing_variabler)
            
             for row in df_count.rdd.collect():
-                for col in df_columns:
+                for k in df.schema.fields:
                     df_row = {}
-                    df_row['variable'] = col
-                    df_row['no_missing'] = row[col]
+                    
+                    df_row['variable'] = k.name
+                    df_row['datatype'] =str(k.dataType)
+                    df_row['obs_total'] = count_tot
+                    df_row['obs_missing'] = row[k.name]
+                    df_row['percentage_missing'] = (row[k.name]/count_tot)*100
+                    
                     df_log.append(df_row)
         
         if len(df_log)>0:

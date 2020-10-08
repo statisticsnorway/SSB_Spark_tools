@@ -189,23 +189,23 @@ def missing_correction_number(df, correction_value=0, exception_for=[], df_name=
         
         df_log = []
         if len(df_name)>0:
-            corrected_missing_log = pd.DataFrame(columns=['dataframe', 'datatype', 'variabel', 'korrigeringer'])
+            corrected_missing_log = pd.DataFrame(columns=['dataframe', 'datatype', 'variable', 'corrections'])
             for k, v in df_count.items():
                 if v != 0:
                     df_dict_count= {}
                     df_dict_count['dataframe'] = df_name
-                    df_dict_count['variabel'] = k
+                    df_dict_count['variable'] = k
                     df_dict_count['datatype'] = 'numeric'
-                    df_dict_count['korrigeringer'] = v
+                    df_dict_count['corrections'] = v
                     df_log.append(df_dict_count)
         else:
-            corrected_missing_log = pd.DataFrame(columns=['datatype', 'variabel', 'korrigeringer'])
+            corrected_missing_log = pd.DataFrame(columns=['datatype', 'variable', 'corrections'])
             for k, v in df_count.items():
                 if v != 0:
                     df_dict_count= {}
-                    df_dict_count['variabel'] = k
+                    df_dict_count['variable'] = k
                     df_dict_count['datatype'] = 'numeric'
-                    df_dict_count['korrigeringer'] = v
+                    df_dict_count['corrections'] = v
                     df_log.append(df_dict_count)
 
         df_log_df = pd.DataFrame(df_log)
@@ -269,9 +269,9 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
         
         if len(df_name)>0:
             missing_variabler = [StructField('dataframe', StringType(), False),\
-                   StructField('variabel', StringType(), True),\
+                   StructField('variable', StringType(), True),\
                    StructField('datatype', StringType(), True),\
-                   StructField('korrigeringer', IntegerType(), False)]
+                   StructField('corrections', IntegerType(), False)]
             missing_schema = StructType(missing_variabler)
             
 
@@ -280,22 +280,23 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
                     if row[k]!=0:
                         df_dict_count= {}
                         df_dict_count['dataframe'] = df_name
-                        df_dict_count['variabel'] = k
+                        df_dict_count['variable'] = k
                         df_dict_count['datatype'] = 'boolean'
-                        df_dict_count['korrigeringer'] = row[k]
+                        df_dict_count['corrections'] = row[k]
                         df_log.append(df_dict_count)
         else:
             missing_variabler = [StructField('variabel', StringType(), True),\
-                   StructField('korrigeringer', IntegerType(), False)]
+                   StructField('datatype', StringType(), True),\
+                   StructField('corrections', IntegerType(), False)]
             missing_schema = StructType(missing_variabler)
             
             for row in df_count.rdd.collect():
                 for k in df_columns:
                     if row[k]!=0:
                         df_dict_count= {}
-                        df_dict_count['variabel'] = k
+                        df_dict_count['variable'] = k
                         df_dict_count['datatype'] = 'boolean'
-                        df_dict_count['korrigeringer'] = row[k]
+                        df_dict_count['corrections'] = row[k]
                         df_log.append(df_dict_count)
         
         if len(df_log)>0:
@@ -362,9 +363,9 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
         
         if len(df_name)>0:
             missing_variabler = [StructField('dataframe', StringType(), False),\
-                   StructField('variabel', StringType(), True),\
+                   StructField('variable', StringType(), True),\
                    StructField('datatype', StringType(), True),\
-                   StructField('korrigeringer', IntegerType(), False)]
+                   StructField('corrections', IntegerType(), False)]
             missing_schema = StructType(missing_variabler)
             
 
@@ -373,22 +374,23 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
                     if row[k]!=0:
                         df_dict_count= {}
                         df_dict_count['dataframe'] = df_name
-                        df_dict_count['variabel'] = k
+                        df_dict_count['variable'] = k
                         df_dict_count['datatype'] = 'numeric'
-                        df_dict_count['korrigeringer'] = row[k]
+                        df_dict_count['corrections'] = row[k]
                         df_log.append(df_dict_count)
         else:
             missing_variabler = [StructField('variabel', StringType(), True),\
-                   StructField('korrigeringer', IntegerType(), False)]
+                   StructField('datatype', StringType(), True),\
+                   StructField('corrections', IntegerType(), False)]
             missing_schema = StructType(missing_variabler)
             
             for row in df_count.rdd.collect():
                 for k in df_columns:
                     if row[k]!=0:
                         df_dict_count= {}
-                        df_dict_count['variabel'] = k
+                        df_dict_count['variable'] = k
                         df_dict_count['datatype'] = 'numeric'
-                        df_dict_count['korrigeringer'] = row[k]
+                        df_dict_count['corrections'] = row[k]
                         df_log.append(df_dict_count)
         
         if len(df_log)>0:
