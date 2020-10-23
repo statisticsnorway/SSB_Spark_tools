@@ -12,7 +12,7 @@ import numbers
 from pyspark.sql import DataFrame
 #from functools import reduce
 
-def listcode_lookup(df, luvar, kodeliste, nokkelverdi):
+def listcode_lookup(df, luvar, kodeliste, nokkelverdi, spark_session=None):
     '''
     
     This function adds a new variable to a given dataframe. The added variable contains values 
@@ -43,6 +43,11 @@ def listcode_lookup(df, luvar, kodeliste, nokkelverdi):
     if (isinstance(df, DataFrame)) & (isinstance(luvar, str)) & (isinstance(kodeliste, DataFrame)) & (isinstance(nokkelverdi, type([]))):
     
         #Inititerer variabler
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
+            
         kodeliste_dict = {}
 
         #Henter nøkkelvariabel og oppslagsvariabel og lager en dictionary av det 
@@ -74,7 +79,7 @@ def listcode_lookup(df, luvar, kodeliste, nokkelverdi):
                 return
             
             
-def missing_correction_bool(df, correction_value=False, exception_for=[], df_name=''):
+def missing_correction_bool(df, correction_value=False, exception_for=[], df_name='', spark_session=None):
     '''
     
     This function checks a dataframe for missing values on Boolean variables and replaces missing values with the 
@@ -98,6 +103,10 @@ def missing_correction_bool(df, correction_value=False, exception_for=[], df_nam
     
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
         boollist = []
 
         #Legger alle boolske variabler i en egen liste
@@ -150,7 +159,7 @@ def missing_correction_bool(df, correction_value=False, exception_for=[], df_nam
             return
 
                                     
-def missing_correction_number(df, correction_value=0, exception_for=[], df_name=''):
+def missing_correction_number(df, correction_value=0, exception_for=[], df_name='', spark_session=None):
     '''
     This function checks a dataframe for missing values on numeric variables and replaces missing values with the 
     correction_value parameter. Correction_value defaults to zero if no value is given.
@@ -174,6 +183,10 @@ def missing_correction_number(df, correction_value=0, exception_for=[], df_name=
 
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
         numlist = []
 
         #Legger alle numeriske variabler i en egen liste
@@ -227,11 +240,11 @@ def missing_correction_number(df, correction_value=0, exception_for=[], df_name=
             raise Exception('Parameter exception_for må være liste format')
             return
 
-def spark_missing_correction_bool(df, correction_value=False, exception_for=[], df_name=''):
+def spark_missing_correction_bool(df, correction_value=False, exception_for=[], df_name='', spark_session=None):
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
     #Paramater correction_value --> hvilken verdi som skal settes inn istedenfor missing
     #Parameter exception_for --> liste over variable som ikke skal korrigeres
-  
+   
     '''
     This function checks a dataframe for missing values on Boolean variables and replaces missing values with the 
     correction_value parameter. Correction_value defaults to False if no value is given.
@@ -253,8 +266,11 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
     '''  
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, bool)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
-        sc = SparkContext.getOrCreate()
-        sqlContext = SQLContext(sc)
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
+            
         boollist = []
 
         #Legger alle boolske variabler i en egen liste
@@ -285,7 +301,7 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
                         df_dict_count['corrections'] = row[k]
                         df_log.append(df_dict_count)
         else:
-            missing_variabler = [StructField('variabel', StringType(), True),\
+            missing_variabler = [StructField('variable', StringType(), True),\
                    StructField('datatype', StringType(), True),\
                    StructField('corrections', IntegerType(), False)]
             missing_schema = StructType(missing_variabler)
@@ -300,10 +316,10 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
                         df_log.append(df_dict_count)
         
         if len(df_log)>0:
-            rdd_missing = sc.parallelize(df_log)
-            df_corrections = sqlContext.createDataFrame(rdd_missing, missing_schema)
+            rdd_missing = spark.sparkContext.parallelize(df_log)
+            df_corrections = spark.createDataFrame(rdd_missing, missing_schema)
         else:
-            df_corrections = sqlContext.createDataFrame(sc.emptyRDD(), missing_schema)
+            df_corrections = spark.createDataFrame(spark.sparkContext.emptyRDD(), missing_schema)
             
         #Korrigerer verdier som er boolske
         df = df.fillna(correction_value, subset=boollist)
@@ -322,7 +338,7 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
             raise Exception('Parameter exception_for må være liste format')
             return
         
-def spark_missing_correction_number(df, correction_value=0, exception_for=[], df_name=''):
+def spark_missing_correction_number(df, correction_value=0, exception_for=[], df_name='', spark_seession=None):
     '''
     
     This function checks a dataframe for missing values on numeric variables and replaces missing values with the 
@@ -345,8 +361,10 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
     
     if (isinstance(df, DataFrame)) & (isinstance(correction_value, numbers.Number)) & (isinstance(exception_for, type([]))):
         #initialiserer variabler
-        sc = SparkContext.getOrCreate()
-        sqlContext = SQLContext(sc)
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
         numlist = []
 
         #Legger alle numeriske variabler i en egen liste
@@ -394,10 +412,10 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
                         df_log.append(df_dict_count)
         
         if len(df_log)>0:
-            rdd_missing = sc.parallelize(df_log)
-            df_corrections = sqlContext.createDataFrame(rdd_missing, missing_schema)
+            rdd_missing = spark.parallelize(df_log)
+            df_corrections = spark.createDataFrame(rdd_missing, missing_schema)
         else:
-            df_corrections = sqlContext.createDataFrame(sc.emptyRDD(), missing_schema)
+            df_corrections = spark.createDataFrame(spark.sparkContext.emptyRDD(), missing_schema)
         
              
         #Korrigerer verdier som er numeriske

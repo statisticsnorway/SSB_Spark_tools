@@ -1,3 +1,4 @@
+from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 from pyspark.sql import DataFrame
@@ -155,7 +156,7 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     dictName = '_'.join(map(str, idstreng)) 
     ds_dict[dictName]= df.cache()
         
-def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
+def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1, spark_session=None):
     
     '''
     This function unpacks a hierarchical spark dataframe and relies on function traverse_hierarchy to traverse the hierarchy and unpack.
@@ -194,6 +195,11 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1):
      Returns: a dictionary
      Dictionary: A dictionary of unpacked dataframes.
     '''
+    
+    if spark_session is None:
+        spark = SparkSession.builder.getOrCreate()            
+    else:
+        spark = spark_session
     
     global ds_dict
     ds_dict = {}
