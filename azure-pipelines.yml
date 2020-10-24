@@ -20,7 +20,6 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
   
-- task: Docker@2
-  inputs:
-    command: 'build'
-    Dockerfile: '**/Dockerfile'
+  - task: ManualValidation@0
+    inputs:
+      notifyUsers: 'Simen Svenerkud'
