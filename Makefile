@@ -11,7 +11,7 @@ build: ## Build dist
 
 .PHONY: test
 test: ## Run tests
-	tox
+	pytest
 
 .PHONY: clean
 clean: ## Clean all build artifacts
