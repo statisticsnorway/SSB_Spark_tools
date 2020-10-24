@@ -42,6 +42,15 @@ steps:
       # Write your commands here
       make build
   displayName: 'Build Package'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write your commands here
+      pwd
+      ls
+  displayName: 'where am i'
 - task: Bash@3
   inputs:
     targetType: 'inline'
