@@ -25,5 +25,5 @@ steps:
     targetType: 'inline'
     script: |
       # Write your commands here
-      
+      make install-build-tools
       make test
