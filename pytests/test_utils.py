@@ -1,5 +1,8 @@
 import pytest
-from ssb_sparktools.processing import processing as stproc
+#from ssb_sparktools.processing import processing as stproc
+
+sys.path.append(os.path.abspath("/home/jovyan/SSB_Spark_tools/ssb_sparktools/processing/"))
+
 from pyspark.sql import SparkSession
 from pyspark import SparkContext
 
