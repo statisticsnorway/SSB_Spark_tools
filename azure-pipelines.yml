@@ -20,4 +20,4 @@ steps:
   displayName: 'Use Python $(python.version)'
   
 - script: |
-    make release-validate
+    make test
