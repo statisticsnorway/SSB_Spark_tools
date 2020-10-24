@@ -26,4 +26,4 @@ steps:
     script: |
       # Write your commands here
       make install-build-tools
-      make test
+      make validate-release
