@@ -20,6 +20,6 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
   
-  - task: ManualValidation@0
-    inputs:
-      notifyUsers: 'Simen Svenerkud'
+- task: ManualValidation@0
+  inputs:
+    notifyUsers: 'Simen Svenerkud'
