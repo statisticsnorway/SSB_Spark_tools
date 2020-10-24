@@ -20,6 +20,10 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
   
-- task: ManualValidation@0
+- task: Bash@3
   inputs:
-    notifyUsers: 'ssv@ssb.no'
+    targetType: 'inline'
+    script: |
+      # Write your commands here
+      
+      make test
