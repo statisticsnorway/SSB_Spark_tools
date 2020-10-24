@@ -22,4 +22,4 @@ steps:
   
 - task: ManualValidation@0
   inputs:
-    notifyUsers: 'Simen Svenkerud'
+    notifyUsers: 'SSvenkerud'
