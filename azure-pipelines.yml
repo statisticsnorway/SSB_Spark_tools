@@ -25,6 +25,7 @@ steps:
     targetType: 'inline'
     script: |
       # Write your commands here
-      /opt/hostedtoolcache/Python/3.7.9/x64/bin/python -m pip install --upgrade
       make install-build-tools
-      make validate-release
+      make clean
+      make build
+      make test
