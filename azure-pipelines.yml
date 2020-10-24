@@ -26,6 +26,34 @@ steps:
     script: |
       # Write your commands here
       make install-build-tools
+  displayName: 'Installing build Tools'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write your commands here
       make clean
+  displayName: 'Clean out systems'
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write your commands here
       make build
+  displayName: 'Build Package'
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write your commands here
       make test
+  displayName: 'Run unit tests'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write your commands here
+      twine check dist/*
+  displayName: 'Validate Release'
