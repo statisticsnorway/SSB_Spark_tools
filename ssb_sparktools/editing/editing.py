@@ -56,7 +56,7 @@ def listcode_lookup(df, luvar, kodeliste, nokkelverdi, spark_session=None):
 
         #Gjør oppslag mot dictionary på variabel vi ønsker og oppretter en egen variabel for resultatet av oppslaget
         mapping_expr = F.create_map([F.lit(x) for x in chain(*kodeliste_dict.items())])
-        df = df.withColumn("{}_kodelisteverdi".format(luvar), mapping_expr.getItem(F.col(luvar))) 
+        df = df.withColumn(nokkelverdi[1].format(luvar), mapping_expr.getItem(F.col(luvar))) 
 
         #Returnere datasettet med ny variabel som resultat av oppslag
         return df
@@ -338,7 +338,7 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
             raise Exception('Parameter exception_for må være liste format')
             return
         
-def spark_missing_correction_number(df, correction_value=0, exception_for=[], df_name='', spark_seession=None):
+def spark_missing_correction_number(df, correction_value=0, exception_for=[], df_name='', spark_session=None):
     '''
     
     This function checks a dataframe for missing values on numeric variables and replaces missing values with the 
@@ -412,7 +412,7 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
                         df_log.append(df_dict_count)
         
         if len(df_log)>0:
-            rdd_missing = spark.parallelize(df_log)
+            rdd_missing = spark.sparkContext.parallelize(df_log)
             df_corrections = spark.createDataFrame(rdd_missing, missing_schema)
         else:
             df_corrections = spark.createDataFrame(spark.sparkContext.emptyRDD(), missing_schema)
