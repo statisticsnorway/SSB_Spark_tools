@@ -2,9 +2,9 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 from pyspark.sql import DataFrame
-import datetime
+from datetime import datetime
             
-def cross_sectional(df, event_var, event_id, coDate=None):
+def cross_sectional(df, event_var, event_id, coDate=None, spark_session=None):
     '''
     This function makes a cross sectional dataset of the last record before a defined date
     for records defined in event_id.
@@ -25,7 +25,13 @@ def cross_sectional(df, event_var, event_id, coDate=None):
     Dataframe: A cross sectional dataframe.
     '''
     if (isinstance(df, DataFrame)) & (isinstance(event_var, str)) & (isinstance(event_id, list)) & \
-        ((coDate==None) | (isinstance(coDate, datetime.datetime))):
+        ((coDate==None) | (isinstance(coDate, datetime))):
+        
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
+        
         if (([dtype for name, dtype in df.dtypes if name == event_var][0])=='timestamp'):
         
             if coDate!=None:

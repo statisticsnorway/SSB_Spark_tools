@@ -3,11 +3,10 @@ from collections import OrderedDict
 import numbers
 from pyspark.sql import DataFrame
 import pyspark.sql.functions as F
-from pyspark import SparkContext
 from pyspark.sql.types import *
-from pyspark.sql import SQLContext
+from pyspark.sql import SparkSession
 
-def missing_df(df):
+def missing_df(df, spark_session=None):
     '''
     
     This function counts the number of missing on each variable in a spark dataframe and returns the result as a pandas dataframe.
@@ -23,6 +22,12 @@ def missing_df(df):
     
     #Parameter df --> datasett som det skal kjøres opptelling av missing for
     if (isinstance(df, DataFrame)):
+        
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
+        
         #Transformerer spark dataframe til pandas dataframe for å kunne benytte pandas funksjoner
         df = df.toPandas()
 
@@ -54,7 +59,7 @@ def missing_df(df):
         raise Exception('Parameter df må være en dataframe')
         return
 
-def spark_qual_missing(df, df_name=''):
+def spark_qual_missing(df, df_name='', spark_session=None):
     
     '''
     
@@ -70,8 +75,10 @@ def spark_qual_missing(df, df_name=''):
     
     '''
     
-    sc = SparkContext.getOrCreate()
-    sqlContext = SQLContext(sc)
+    if spark_session is None:
+        spark = SparkSession.builder.getOrCreate()            
+    else:
+        spark = spark_session
     
     if (isinstance(df, DataFrame)):
         df_count = df.select([F.count(F.when(F.isnull(c), c)).alias(c) for c in df.columns])
@@ -121,10 +128,10 @@ def spark_qual_missing(df, df_name=''):
                     df_log.append(df_row)
         
         if len(df_log)>0:
-            rdd_missing = sc.parallelize(df_log)
-            df_missing = sqlContext.createDataFrame(rdd_missing, missing_schema)
+            rdd_missing = spark.sparkContext.parallelize(df_log)
+            df_missing = spark.createDataFrame(rdd_missing, missing_schema)
         else:
-            df_missing = sqlContext.createDataFrame(sc.emptyRDD(), missing_schema)
+            df_missing = spark.createDataFrame(spark.sparkContext.emptyRDD(), missing_schema)
         
         return df_missing
     else:

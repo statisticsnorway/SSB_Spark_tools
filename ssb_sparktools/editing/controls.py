@@ -7,7 +7,7 @@ from itertools import chain
 import pyspark.sql.functions as F
 from pyspark import SparkContext
 
-def listcode_check(df, variabel, kodeliste):
+def listcode_check(df, variabel, kodeliste, spark_session=None):
     '''
     
     This function checks the values of a variable in a dataframe against a given list of codes
@@ -36,9 +36,11 @@ def listcode_check(df, variabel, kodeliste):
     #Sjekker om parametre er av korrekt format       
     if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, type([]))):
             
-        #Kopierer over spark context og setter opp peker til context som brukes i forbindelse med oppretting av nytt datasett
-        sc = SparkContext.getOrCreate()
-        sqlContext = SQLContext(sc)
+        #Setter opp peker til context som brukes i forbindelse med oppretting av nytt datasett
+        if spark_session is None:
+            spark = SparkSession.builder.getOrCreate()            
+        else:
+            spark = spark_session
         
         #initialiserer variabler
         sjekk_listedf = []
