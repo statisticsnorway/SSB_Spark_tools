@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.getcwd()+"/ssb_sparktools/quality/"))
 from processing import *
 from editing import *
 from quality import *
+from controls import *
 
 from pyspark.sql.types import *
 from pyspark.sql import SparkSession
@@ -123,7 +124,6 @@ def test_sparkbool_distribution():
     assert [row['boolvar'] for row in test_sparkbooldata_korrigert.select('boolvar').collect()][:4] == [True, False, False, False]
 
 # spark_missing_correction_number
-#test_numbdata_korrigert, missing_numbcount = stedit.spark_missing_correction_bool(testdata, spark_session=spark)
 test_numbdata_korrigert, missing_numbcount = spark_missing_correction_number(testdata, spark_session=spark)
 
 def test_numb_nocorrection():
@@ -131,6 +131,17 @@ def test_numb_nocorrection():
 
 def test_numb_distribution():
     assert [row['numbvar'] for row in test_numbdata_korrigert.select('numbvar').collect()][:4] == [1, 2, 0, 4]
+    
+#### SPARK TOOLS CONTROLS ####
+
+# listcode_check
+kodeliste = testdata_kodeliste.select('varenummer')
+sjekk, sjekkdf = listcode_check(testdata, 'varenummer', kodeliste)
+listcode_testdata = sjekkdf.groupBy('i_kodeliste').count()
+
+def test_listcode_check():
+    assert (listcode_testdata.collect()[0][1], listcode_testdata.collect()[1][1]) == (4, 1)
+    
 
 ####  SPARK TOOLS QUALITY  #####
 test_missing_spark = spark_qual_missing(testdata, spark_session=spark)

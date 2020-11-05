@@ -1,11 +1,12 @@
 from pyspark import Row
 from pyspark.sql import SparkSession
-from pyspark.sql import SQLContext
+#from pyspark.sql import SQLContext
 from pyspark.sql.types import *
 from pyspark.sql import DataFrame
 from itertools import chain
 import pyspark.sql.functions as F
-from pyspark import SparkContext
+#from pyspark import SparkContext
+from pyspark.sql.column import Column
 
 def listcode_check(df, variabel, kodeliste, spark_session=None):
     '''
@@ -34,7 +35,7 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
     '''  
  
     #Sjekker om parametre er av korrekt format       
-    if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & (isinstance(kodeliste, type([]))):
+    if (isinstance(df, DataFrame)) & (isinstance(variabel, str)) & ((isinstance(kodeliste, type([]))) | (isinstance(kodeliste, DataFrame))):
             
         #Setter opp peker til context som brukes i forbindelse med oppretting av nytt datasett
         if spark_session is None:
@@ -45,6 +46,10 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
         #initialiserer variabler
         sjekk_listedf = []
         sjekk_bol = True
+        
+        #Hvis kodeliste er dataframe gjøres første kolonne (bør også være eneste kolonne) om til liste
+        if isinstance(kodeliste, DataFrame):
+            kodeliste = [row[0] for row in kodeliste.collect()]
         
         #Grupperer variabelene i datasettet og teller opp instanser av ulike verdier
         koder_df = df.groupby(variabel).count().withColumnRenamed('count', 'antall')
@@ -67,8 +72,8 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
                         StructField('antall', IntegerType(), True),\
                         StructField('i_kodeliste', BooleanType(), False)]
         schema_kl = StructType(field_kl)
-        rdd_sl = sc.parallelize(sjekk_listedf)
-        sjekk_df = sqlContext.createDataFrame(rdd_sl, schema_kl)
+        rdd_sl = spark.sparkContext.parallelize(sjekk_listedf)
+        sjekk_df = spark.createDataFrame(rdd_sl, schema_kl)
         
         #Returner opprettet dataframe og boolsk verdi
         return sjekk_bol, sjekk_df
@@ -82,6 +87,8 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
             return
         
         if not (isinstance(kodeliste, type([]))):
-            raise Exception('Tredje parameter må være en python liste som inneholder kodelisten variabel skal sjekkes mot')
+            raise Exception('Tredje parameter må være en python liste som inneholder kodelisten \
+                            variabel skal sjekkes mot eller en dataframe der første kolonne er kodelisten\
+                            som det skal sjekkes mot')
             return
             
