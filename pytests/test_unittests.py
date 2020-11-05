@@ -2,6 +2,7 @@ import pytest
 import os
 import sys
 
+# Legger undermapper med scripts til systempath, slik at vi kan importere biblioteker fra disse mappene.#
 sys.path.append(os.path.abspath(os.getcwd()+"/ssb_sparktools/processing/"))
 sys.path.append(os.path.abspath(os.getcwd()+"/ssb_sparktools/editing/"))
 sys.path.append(os.path.abspath(os.getcwd()+"/ssb_sparktools/quality/"))
