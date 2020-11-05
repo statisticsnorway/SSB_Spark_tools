@@ -19,10 +19,10 @@ import pyspark.sql.functions as F
 from datetime import datetime
 
 
-
+#Definerer Spark-session#
 spark = SparkSession.builder.getOrCreate() 
 
-#### TESTDATA ####
+#### LAGER TESTDATA ####
 # Flat data #
 testdata_schema = StructType([StructField('identifikator',StringType(),False),StructField('numbvar',LongType(),True),StructField('boolvar',BooleanType(),True)\
                              ,StructField('varenummer',StringType(),True)])
@@ -58,6 +58,7 @@ hierarkidata_raw = [('#ID1', '01Jan2020', [('Industri AS', 'Jernveien 24', [('Pe
 
 hierarki_testdata = spark.createDataFrame(hierarkidata_raw, hierarki_schema)
 
+#### TESTER FUNKSJONER I SPARK TOOLS' UNDERMAPPER ####
 #### SPARK TOOLS PROCESSING ####
 # cross_sectional #
 REFDATO = '2020-03-01 00:00:00'

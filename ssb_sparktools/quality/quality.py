@@ -12,8 +12,10 @@ def missing_df(df, spark_session=None):
     This function counts the number of missing on each variable in a spark dataframe and returns the result as a pandas dataframe.
      
     :param df: The spark dataframe for which to run missing count.
-    
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
     :type df: dataframe
+    :type spark_session: string
     
     Returns: a pandas dataframe
     Dataframe: A pandas dataframe with one row for each variable in the original dataset and the share of missing on each variable.
@@ -69,6 +71,9 @@ def spark_qual_missing(df, df_name='', spark_session=None):
     :type df: dataframe
     :param df_name: Optional. Name of dataframe added as a column. Default is none.
     :type df_name: string
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
+    :type spark_session: string
     
     Returns: a spark dataframe
     Dataframe: A spark dataframe with one row for each variable in the original dataset and the share of missing on each variable.

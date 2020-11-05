@@ -20,7 +20,10 @@ def cross_sectional(df, event_var, event_id, coDate=None, spark_session=None):
     :type event_id: list
     :param coDate: The max date for events on event_var
     :type coDate: datetime/timestamp
-    
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
+    :type spark_session: string
+                        
     Returns: a dataframe
     Dataframe: A cross sectional dataframe.
     '''
@@ -93,7 +96,10 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     :type idstreng: string
     :param hierarchylevels: controls the depth at which the function will look for arrays 
     :type hierarchylevels: numeric value
-    
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
+     :type spark_session: string
+     
      Returns: 
      None: Returns nothing, but updates dictionary created earlier
     
@@ -197,6 +203,9 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1, spark_session=
     :type rootvar: boolean/list
     :param levels: Tells the function how many hierarchy levels to be traversed
     :type levels: numerical value
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
+    :type spark_session: string
     
      Returns: a dictionary
      Dictionary: A dictionary of unpacked dataframes.
