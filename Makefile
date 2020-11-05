@@ -3,7 +3,7 @@ default: | help
 
 .PHONY: install-build-tools
 install-build-tools: ## Install required tools for build/dev
-	pip install tox wheel twine bumpversion
+	pip install wheel twine bumpversion pytest
 
 .PHONY: build
 build: ## Build dist
@@ -11,7 +11,7 @@ build: ## Build dist
 
 .PHONY: test
 test: ## Run tests
-	tox
+	pytest
 
 .PHONY: clean
 clean: ## Clean all build artifacts
@@ -24,10 +24,6 @@ release-validate: ## Validate that a distribution will render properly on PyPI
 	@make clean build test
 	twine check dist/*
 
-.PHONY: release-test
-release-test: ## Release a new version, uploading it to PyPI Test
-	@make release-validate
-	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 .PHONY: release
 release: ## Release a new version, uploading it to PyPI
