@@ -116,7 +116,6 @@ def test_numb_distribution():
     assert [row['numbvar'] for row in test_corrected_number.select('numbvar').collect()][:4] == [1, 2, 0, 4]
 
 # spark_missing_correction_bool
-#test_booldata_korrigert, missing_boolcount = stedit.spark_missing_correction_bool(testdata, spark_session=spark)
 test_sparkbooldata_korrigert, spark_missing_boolcount = spark_missing_correction_bool(testdata, spark_session=spark)
 
 def test_sparkbool_nocorrection():

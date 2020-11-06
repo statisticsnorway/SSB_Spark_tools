@@ -10,7 +10,7 @@ import pandas as pd
 from collections import OrderedDict
 import numbers
 from pyspark.sql import DataFrame
-#from functools import reduce
+
 
 def listcode_lookup(df, luvar, kodeliste, nokkelverdi, spark_session=None):
     '''
