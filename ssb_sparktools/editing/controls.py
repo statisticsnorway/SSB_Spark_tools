@@ -1,11 +1,9 @@
 from pyspark import Row
 from pyspark.sql import SparkSession
-#from pyspark.sql import SQLContext
 from pyspark.sql.types import *
 from pyspark.sql import DataFrame
 from itertools import chain
 import pyspark.sql.functions as F
-#from pyspark import SparkContext
 from pyspark.sql.column import Column
 
 def listcode_check(df, variabel, kodeliste, spark_session=None):
@@ -20,10 +18,13 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
     :param df: Spark dataframe containing variable to be controlled
     :param variabel: variable to be checked against the code list 
     :param kodeliste: list of codes that the variable should be checked against, sent as a Python list
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
     
     :type df: Spark dataframe
     :type variabel: string 
     :type kodeliste: list
+    :type spark_session: string
     
     Returns: Boolean variable and a dataframe in that order.
     Boolean variable: A Boolean variable indicating wheteher or not there exists one or more values in

@@ -10,7 +10,7 @@ import pandas as pd
 from collections import OrderedDict
 import numbers
 from pyspark.sql import DataFrame
-#from functools import reduce
+
 
 def listcode_lookup(df, luvar, kodeliste, nokkelverdi, spark_session=None):
     '''
@@ -26,11 +26,14 @@ def listcode_lookup(df, luvar, kodeliste, nokkelverdi, spark_session=None):
     :param nokkelverdi: Python list ([key value, lookup value]). Key value is the name of the 
                         variable in the list of codes which corresponds to the variable of 
                         interest in the dataframe. Lookup value is the name of the variable
-                        in the list of codes to be returned and added to the dataframe.                  
+                        in the list of codes to be returned and added to the dataframe. 
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
     :type df: Spark dataframe
     :type luvar: string  
     :type kodeliste: dataframe
     :type nokkelverdi: list 
+    :type spark_session: string
     
     Returns: 
     Dataframe: Spark dataframe consisting of the original dataframe updated with a new variable 
@@ -90,9 +93,12 @@ def missing_correction_bool(df, correction_value=False, exception_for=[], df_nam
     :param df: The dataframe to be corrected
     :param correction_value: value to replace missing
     :param exception_for: list of variables not to be corrected 
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
     :type df: Spark dataframe
     :type correction_value: Boolean 
     :type exception_for: list
+    :type spark_session: string
     
     Returns: corrected dataframe and log in that order
     Dataframe: corrected dataframe (Spark) 
@@ -169,9 +175,12 @@ def missing_correction_number(df, correction_value=0, exception_for=[], df_name=
     :param df: The dataframe to be corrected
     :param correction_value: value to replace missing
     :param exception_for: list of variables not to be corrected 
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.               
     :type df: Spark dataframe
     :type correction_value: numeric 
     :type exception_for: list
+    :type spark_session: string
     
     Returns: corrected dataframe and log in that order
     Dataframe: corrected dataframe (Spark) 
@@ -254,9 +263,12 @@ def spark_missing_correction_bool(df, correction_value=False, exception_for=[], 
     :param df: The dataframe to be corrected
     :param correction_value: value to replace missing
     :param exception_for: list of variables not to be corrected 
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                        means the function tries to catch the current session.
     :type df: Spark dataframe
     :type correction_value: Boolean 
     :type exception_for: list
+    :type spark_session: string
     
     Returns: corrected dataframe and log in that order
     Dataframe: corrected dataframe (Spark) 
@@ -349,9 +361,12 @@ def spark_missing_correction_number(df, correction_value=0, exception_for=[], df
     :param df: The dataframe to be corrected
     :param correction_value: value to replace missing
     :param exception_for: list of variables not to be corrected 
+    :param spark_session: defines the Spark session to be used by the function. Default is None, which
+                means the function tries to catch the current session.
     :type df: Spark dataframe
     :type correction_value: numeric 
     :type exception_for: list
+    :type spark_session: string
     
     Returns: corrected dataframe and log in that order
     Dataframe: corrected dataframe (Spark) 

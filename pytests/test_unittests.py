@@ -2,6 +2,7 @@ import pytest
 import os
 import sys
 
+# Legger undermapper med scripts til systempath, slik at vi kan importere biblioteker fra disse mappene.#
 sys.path.append(os.path.abspath(os.getcwd()+"/ssb_sparktools/processing/"))
 sys.path.append(os.path.abspath(os.getcwd()+"/ssb_sparktools/editing/"))
 sys.path.append(os.path.abspath(os.getcwd()+"/ssb_sparktools/quality/"))
@@ -18,10 +19,10 @@ import pyspark.sql.functions as F
 from datetime import datetime
 
 
-
+#Definerer Spark-session#
 spark = SparkSession.builder.getOrCreate() 
 
-#### TESTDATA ####
+#### LAGER TESTDATA ####
 # Flat data #
 testdata_schema = StructType([StructField('identifikator',StringType(),False),StructField('numbvar',LongType(),True),StructField('boolvar',BooleanType(),True)\
                              ,StructField('varenummer',StringType(),True)])
@@ -57,6 +58,7 @@ hierarkidata_raw = [('#ID1', '01Jan2020', [('Industri AS', 'Jernveien 24', [('Pe
 
 hierarki_testdata = spark.createDataFrame(hierarkidata_raw, hierarki_schema)
 
+#### TESTER FUNKSJONER I SPARK TOOLS' UNDERMAPPER ####
 #### SPARK TOOLS PROCESSING ####
 # cross_sectional #
 REFDATO = '2020-03-01 00:00:00'
@@ -114,7 +116,6 @@ def test_numb_distribution():
     assert [row['numbvar'] for row in test_corrected_number.select('numbvar').collect()][:4] == [1, 2, 0, 4]
 
 # spark_missing_correction_bool
-#test_booldata_korrigert, missing_boolcount = stedit.spark_missing_correction_bool(testdata, spark_session=spark)
 test_sparkbooldata_korrigert, spark_missing_boolcount = spark_missing_correction_bool(testdata, spark_session=spark)
 
 def test_sparkbool_nocorrection():
