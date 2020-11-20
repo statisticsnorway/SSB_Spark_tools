@@ -14,7 +14,7 @@ steps:
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.8'
-  displayName: 'Use Python 3.3'
+  displayName: 'Use Python 3.8'
   
 
 - script: |
@@ -50,7 +50,7 @@ steps:
     targetType: 'inline'
     script: |
       # Write your commands here
-      make test
+      pytest
   displayName: 'Run unit tests'
 
 - task: Bash@3
