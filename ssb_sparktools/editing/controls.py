@@ -12,18 +12,19 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
     This function checks the values of a variable in a dataframe against a given list of codes
     and makes a new dataframe containing these values, a count of how many times the value occurs
     and a variable indicating whether or not this value existed in the code list or not.
-    In addition, the function returns a Boolean variable indicating whether the variable included
+    In addition, the function returns a Boolean variable indicating whether the variable included has
     one or more values outside the code list or not.
      
     :param df: Spark dataframe containing variable to be controlled
     :param variabel: variable to be checked against the code list 
-    :param kodeliste: list of codes that the variable should be checked against, sent as a Python list
+    :param kodeliste: list of codes that the variable should be checked against, sent as a Python list or 
+                        as a dataframe with listcode values in first column of the dataframe
     :param spark_session: defines the Spark session to be used by the function. Default is None, which
                         means the function tries to catch the current session.
     
     :type df: Spark dataframe
     :type variabel: string 
-    :type kodeliste: list
+    :type kodeliste: list or dataframe
     :type spark_session: string
     
     Returns: Boolean variable and a dataframe in that order.
