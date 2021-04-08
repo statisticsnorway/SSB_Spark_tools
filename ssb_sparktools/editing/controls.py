@@ -96,7 +96,7 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
 
 def compare_dimdf(df1, df2):
     '''
-    This function checks if two dataframes have the same number and name for columns and the same amount of rows.
+    This function checks if two dataframes have indentical (number of columns and column names) columns, and the same amount of rows.
     :param df1: First dataframe for comparison
     :param df2: Second dataframe for comparison
     
@@ -108,4 +108,17 @@ def compare_dimdf(df1, df2):
         test = False
     if (df1.count() != df2.count()):
         test = False
+    return test
+
+def compare_columns(df1, df2):
+    '''
+    This function checks if two dataframes have indentical (number of columns and column names) columns
+    :param df1: First dataframe for comparison
+    :param df2: Second dataframe for comparison
+    
+    Returns: Boolean variable indications if columns of two dataframes are identical
+    '''
+    test = False
+    if (sorted(list(df1.columns)) == sorted(list(df2.columns))):
+        test = True
     return test
