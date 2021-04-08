@@ -116,9 +116,19 @@ def compare_columns(df1, df2):
     :param df1: First dataframe for comparison
     :param df2: Second dataframe for comparison
     
-    Returns: Boolean variable indications if columns of two dataframes are identical
+    Returns: Boolean variable indicates if columns of two dataframes are identical
     '''
     test = False
     if (sorted(list(df1.columns)) == sorted(list(df2.columns))):
         test = True
     return test
+
+def compare_df(df1, df2):
+    '''
+    This functions compares two dataframes to check if they are identical
+    :param df1: First dataframe for comparison
+    :param df2: Second dataframe for comparison
+    
+    Returns: Boolean variable indicates if two dataframes are identical
+    '''
+    return (len(df1.subtract(df2).head(1)) == 0)
