@@ -135,7 +135,7 @@ def cross_sectional_old(df, event_var, event_id, coDate=None, spark_session=None
             return
         
             
-def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
+def traverse_hierarchy(keylist, travdf, parqdf, idstreng, idname, hierarchylevels):
     '''
     This function walks through a hierarcical dataset stored in memory,
     and unpacks all packed data objects.
@@ -171,7 +171,7 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
     '''
     
     global ds_dict
-    id = travdf + "_id"
+    id = idname + str("_id")
     if (len(keylist)>0):
         varList = list(keylist)
         varList.append(travdf)
@@ -223,12 +223,16 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, hierarchylevels):
         cols = [i.name for i in df.schema.fields if ("ArrayType(StructType"==str(i.dataType)[:20]) | ("StructType(List"==str(i.dataType)[:15])]
 
         for socol in cols:
-            idstreng.append(socol)
+            if socol in idstreng:
+                socol_id = str(socol)+'_child'
+            else: 
+                socol_id = socol
+            idstreng.append(socol_id)
             keylist.append(id)
-            traverse_hierarchy(keylist, socol, df, idstreng, hierarchylevels)
+            traverse_hierarchy(keylist, socol, df, idstreng, socol_id, hierarchylevels)
             keylist.remove(id)
             df = df.drop(socol)
-            idstreng.remove(socol)
+            idstreng.remove(socol_id)
         
     dictName = '_'.join(map(str, idstreng)) 
     ds_dict[dictName]= df.cache()
@@ -321,7 +325,8 @@ def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1, spark_session=
 
         for socol in list_col:
             idstreng = [socol]
-            traverse_hierarchy(keylist, socol, parqdf, idstreng, hierarchylevels)
+            socol_id = socol
+            traverse_hierarchy(keylist, socol, parqdf, idstreng, socol_id, hierarchylevels)
             
     return ds_dict.copy()
         
