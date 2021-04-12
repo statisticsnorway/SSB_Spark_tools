@@ -159,6 +159,8 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, idname, hierarchylevel
     :type parqdf: dataframe
     :param idstreng: identifying record in parent dataframe
     :type idstreng: string
+    :param idname: name of dataframe when unpacked
+    :type idname: string
     :param hierarchylevels: controls the depth at which the function will look for arrays 
     :type hierarchylevels: numeric value
     :param spark_session: defines the Spark session to be used by the function. Default is None, which
@@ -224,7 +226,7 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, idname, hierarchylevel
 
         for socol in cols:
             if socol in idstreng:
-                socol_id = str(socol)+'_child'
+                socol_id = str(socol)+'-child'
             else: 
                 socol_id = socol
             idstreng.append(socol_id)

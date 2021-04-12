@@ -46,18 +46,18 @@ hierarki_schema = StructType([
                                                                                  ])
                                                                      )),
                               StructField('utdanning',ArrayType(
-                                                                      StructType([StructField('Fag',StringType(),True),
-                                                                                 StructField('Eksamensdato',StringType(),True)
+                                                                      StructType([StructField('utdanningsinstitusjon',StringType(),True),
+                                                                                  StructField('adresse',StringType(),True),
+                                                                                  StructField('utdanning', ArrayType(
+                                                                                      StructType([StructField('fag', StringType(), True),
+                                                                                                  StructField('eksamensdato',StringType(),True)])))
                                                                                  ])
                                                                      ))
                              ])
-
-hierarkidata_raw = [('#ID1', '01Jan2020', [('Industri AS', 'Jernveien 24', [('Per', 'Storgata 3'),('Kari', 'Toppen 2')])], [('Mekaniskefag', '21Jun2013'), ('Byggingeniør', '11Jun2018')]),
-                    ('#ID2', '02Mar2020', [('Lommerusk AS', 'Sliteveien 23', [('Espen', 'Ukjent'),('Ronny', 'Kaiegata 2')])], [('Grunnskole', '19Jun2014')]),
-                    ('#ID3', '15Feb2020', [('Papir AS', 'Papirveien 24', [('Ole', 'Storgata 3'),('Siri', 'Toppen 3')])], [('Papirfag', '21Jun2014'), ('Papiringeniør', '11Jun2012')])]
-
+hierarkidata_raw = [('#ID1', '01Jan2020', [('Industri AS', 'Jernveien 24', [('Per', 'Storgata 3'),('Kari', 'Toppen 2')])], [('Mek Skole', 'Mek veien 1',[('Mekaniskefag', '21Jun2013'), ('Byggingeniør', '11Jun2018')])]),
+                    ('#ID2', '02Mar2020', [('Lommerusk AS', 'Sliteveien 23', [('Espen', 'Ukjent'),('Ronny', 'Kaiegata 2')])], [('Harde Skole', 'Kjeppveien 10', [('Grunnskole', '19Jun2014')])]),
+                    ('#ID3', '15Feb2020', [('Papir AS', 'Papirveien 24', [('Ole', 'Storgata 3'),('Siri', 'Toppen 3')])], [('Skogen Skole', 'Treveien 5', [('Papirfag', '21Jun2014'), ('Papiringeniør', '11Jun2012')])])]
 hierarki_testdata = spark.createDataFrame(hierarkidata_raw, hierarki_schema)
-
 #### TESTER FUNKSJONER I SPARK TOOLS' UNDERMAPPER ####
 #### SPARK TOOLS PROCESSING ####
 # cross_sectional #
@@ -84,10 +84,13 @@ def test_unpack_parquet_return_dict():
     assert len(test_dict)!=0
     
 def test_unpack_parquet_nodfs():
-    assert len(test_dict.keys())==3
+    assert len(test_dict.keys())==4
 
 def test_unpack_parquet_nodfs_levels():
     assert len(test_dict_less.keys())==2
+
+def test_unpack_parquet_child():
+    assert all(dfname in test_dict.keys() for dfname in ['utdanning_utdanning-child', 'utdanning'])==True 
 
 ####  SPARK TOOLS EDITING  #####
 
