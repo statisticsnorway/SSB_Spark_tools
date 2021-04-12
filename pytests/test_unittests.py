@@ -142,8 +142,29 @@ listcode_testdata = sjekkdf.groupBy('i_kodeliste').count()
 
 def test_listcode_check():
     assert (listcode_testdata.collect()[0][1], listcode_testdata.collect()[1][1]) == (4, 1)
-    
 
+# compare_dimdf
+def test_compare_dimdf_identical():
+    assert compare_dimdf(testdata, testdata)==True
+def test_compare_dimdf_necolumns():    
+    assert compare_dimdf(testdata, testdata.drop('numbvar'))==False
+def test_compare_dimdf_nerows():    
+    assert compare_dimdf(testdata, testdata.filter(F.col('identifikator') != 'id4'))==False
+def test_compare_dimdf_necolumnsrows():    
+    assert compare_dimdf(testdata, testdata.drop('numbvar').filter(F.col('identifikator') != 'id4'))==False
+
+# compare_columns
+def test_compare_columns_identical():
+    assert compare_dimdf(testdata, testdata)==True
+def test_compare_columns_necolumns():    
+    assert compare_dimdf(testdata, testdata.drop('numbvar'))==False
+    
+# compare_df
+def test_compare_df_identical():
+    assert compare_df(testdata, testdata)==True
+def test_compare_df_ne():
+    assert compare_df(testdata, testdata.withColumn('numbvar', F.when(F.col('identifikator')=='id3', F.lit(100)).otherwise(F.col('numbvar'))))==False
+    
 ####  SPARK TOOLS QUALITY  #####
 test_missing_spark = spark_qual_missing(testdata, spark_session=spark)
 test_missing_pd = missing_df(testdata, spark_session=spark)
