@@ -50,13 +50,40 @@ hierarki_schema = StructType([
                                                                                   StructField('adresse',StringType(),True),
                                                                                   StructField('utdanning', ArrayType(
                                                                                       StructType([StructField('fag', StringType(), True),
-                                                                                                  StructField('eksamensdato',StringType(),True)])))
-                                                                                 ])
-                                                                     ))
-                             ])
-hierarkidata_raw = [('#ID1', '01Jan2020', [('Industri AS', 'Jernveien 24', [('Per', 'Storgata 3'),('Kari', 'Toppen 2')])], [('Mek Skole', 'Mek veien 1',[('Mekaniskefag', '21Jun2013'), ('Byggingeniør', '11Jun2018')])]),
-                    ('#ID2', '02Mar2020', [('Lommerusk AS', 'Sliteveien 23', [('Espen', 'Ukjent'),('Ronny', 'Kaiegata 2')])], [('Harde Skole', 'Kjeppveien 10', [('Grunnskole', '19Jun2014')])]),
-                    ('#ID3', '15Feb2020', [('Papir AS', 'Papirveien 24', [('Ole', 'Storgata 3'),('Siri', 'Toppen 3')])], [('Skogen Skole', 'Treveien 5', [('Papirfag', '21Jun2014'), ('Papiringeniør', '11Jun2012')])])]
+                                                                                                  StructField('eksamensdato',StringType(),True),
+                                                                                                  StructField('annet', ArrayType(
+                                                                                                      StructType([StructField('Hovedlinje', StringType(), True),
+                                                                                                      StructField('karakter',StringType(),True)])))
+                                                                                        ])
+                                                                                 ))
+                                                                        ])))
+                            
+                                  
+                            ])
+hierarkidata_raw = [('#ID1', '01Jan2020', 
+                         [('Industri AS', 'Jernveien 24', 
+                               [('Per', 'Storgata 3'),('Kari', 'Toppen 2')])], 
+                         [('Mek Skole', 'Mek veien 1',
+                               [('Mekaniskefag', '21Jun2013', 
+                                     [('Plateteknikk', 'B')]), 
+                                ('Byggingeniør', '11Jun2018', 
+                                     [('Stålkonstruksjon', 'B')])])]),
+                    ('#ID2', '02Mar2020', 
+                         [('Lommerusk AS', 'Sliteveien 23', 
+                               [('Espen', 'Ukjent'),('Ronny', 'Kaiegata 2')])], 
+                     [('Harde Skole', 'Kjeppveien 10', 
+                           [('Grunnskole', '19Jun2014',
+                                [('Ingen', 'C')])])]),
+                    ('#ID3', '15Feb2020', 
+                         [('Papir AS', 'Papirveien 24', 
+                               [('Ole', 'Storgata 3'),('Siri', 'Toppen 3')])], 
+                     [('Skogen Skole', 'Treveien 5', 
+                           [('Papirfag', '21Jun2014',
+                                [('Papp', 'D')]),
+                            ('Papiringeniør', '11Jun2012',
+                                [('Papirrull', 'A')])])])
+]
+
 hierarki_testdata = spark.createDataFrame(hierarkidata_raw, hierarki_schema)
 #### TESTER FUNKSJONER I SPARK TOOLS' UNDERMAPPER ####
 #### SPARK TOOLS PROCESSING ####
@@ -84,13 +111,13 @@ def test_unpack_parquet_return_dict():
     assert len(test_dict)!=0
     
 def test_unpack_parquet_nodfs():
-    assert len(test_dict.keys())==4
+    assert len(test_dict.keys())==5
 
 def test_unpack_parquet_nodfs_levels():
     assert len(test_dict_less.keys())==2
 
 def test_unpack_parquet_child():
-    assert all(dfname in test_dict.keys() for dfname in ['utdanning_utdanning-child', 'utdanning'])==True 
+    assert all(dfname in test_dict.keys() for dfname in ['utdanning', 'utdanning_utdanning-child', 'utdanning_utdanning-child_annet'])==True 
 
 ####  SPARK TOOLS EDITING  #####
 
