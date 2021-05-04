@@ -133,7 +133,41 @@ def cross_sectional_old(df, event_var, event_id, coDate=None, spark_session=None
         if not ((coDate==None) | (isinstance(coDate, datetime.datetime))):
             raise Exception('Fjerde parameter må være en dato.')
             return
-        
+
+def orderedgroup(df, groupby, orderby,null_last=True, asc = False, rankedvar='ranked'):
+    """
+    This function takes a dataframe and adds a variable indicating the ordered rank of variables values inside another variables grouped values
+    
+    :param df: Dataframe containing variable to group by and a different variable to order by inside the grouped values.
+    :type df: dataframe
+    :param groupby: Dataframe column to groupby
+    :type groupby: string
+    :param orderby: Dataframe to orderby
+    :type orderby: string
+    :param null_last: Variable indicating whether null values would be sorted last or first. Default value is True, sorting null values last
+    :type null_last: boolean
+    :param asc: Variable indicating whether ordering should be done ascending or descending. Default value is False, sorting values in a descending order
+    :type asc: boolean
+    :param rankedvar: Name of new column to contain the ranked value. Default name is ranked
+    :type rankedvar: string
+    
+    Returns: dataframe
+    Dataframe: Dataframe containing a new column with ranked values
+    """
+    
+    if asc==True:
+        if null_last==True:
+            w = Window.partitionBy(groupby).orderBy(F.col(orderby).asc_nulls_last())
+        else:
+            w = Window.partitionBy(groupby).orderBy(F.col(orderby).asc_nulls_first())
+    else:
+        if null_last==True:
+            w = Window.partitionBy(groupby).orderBy(F.col(orderby).desc_nulls_last())
+        else:
+            w = Window.partitionBy(groupby).orderBy(F.col(orderby).desc_nulls_first())
+
+    df_result = df.withColumn(rankedvar,(F.row_number()).over(w).cast(StringType()))
+    return df_result
             
 def traverse_hierarchy(keylist, travdf, parqdf, idstreng, idname, hierarchylevels):
     '''

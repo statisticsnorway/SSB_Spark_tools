@@ -85,6 +85,25 @@ hierarkidata_raw = [('#ID1', '01Jan2020',
 ]
 
 hierarki_testdata = spark.createDataFrame(hierarkidata_raw, hierarki_schema)
+
+orderdataschema = StructType([
+    StructField('id', StringType(), False),
+    StructField('farge', StringType(), True),
+    StructField('enheter', IntegerType(), True)
+])
+ordereddata = [
+    ('#001', 'Blå', 10),
+    ('#002', 'Blå', 20),
+    ('#003', 'Blå', 15),
+    ('#004', 'Blå', None),
+    ('#005', 'Rød', 20),
+    ('#006', 'Rød', 22),
+    ('#007', 'Rød', 10),
+    ('#008', 'Gul', 20),
+    ('#009', 'Gul', None)
+]
+ordereddata_df = spark.createDataFrame(ordereddata, orderdataschema)
+
 #### TESTER FUNKSJONER I SPARK TOOLS' UNDERMAPPER ####
 #### SPARK TOOLS PROCESSING ####
 # cross_sectional #
@@ -101,6 +120,19 @@ def test_cross_sectional_all():
 def test_cross_sectional_co():
     assert tverrsnitt_co.count()==2
 
+# orderedgroup #
+def test_orderedgroup_standard():
+    assert ([row[0] for row in orderedgroup(ordereddata_df, 'farge', 'enheter').collect()]==
+            ['#006', '#005', '#007', '#002', '#003', '#001', '#004', '#008', '#009'])
+
+def test_orderedgroup_nullfirst():
+    assert ([row[0] for row in orderedgroup(ordereddata_df, 'farge', 'enheter', null_last=False).collect()]==
+            ['#006', '#005', '#007', '#004', '#002', '#003', '#001', '#009', '#008'])
+
+def test_orderedgroup_asc():
+    assert ([row[0] for row in orderedgroup(ordereddata_df, 'farge', 'enheter', asc=True).collect()]==
+            ['#007', '#005', '#006', '#001', '#003', '#002', '#004', '#008', '#009'])
+    
 # unpack_parquet #
 test_dict={}
 
