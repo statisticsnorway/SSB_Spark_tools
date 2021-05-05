@@ -18,7 +18,7 @@ DEPENDENCIES = [
 
 setup(
     name="ssb_spark_tools",
-    version="0.1.2",
+    version="0.1.3",
     url="https://github.com/statisticsnorway/ssb_spark_tools",
     license='MIT',
 
