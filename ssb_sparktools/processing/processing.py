@@ -134,6 +134,65 @@ def cross_sectional_old(df, event_var, event_id, coDate=None, spark_session=None
             raise Exception('Fjerde parameter må være en dato.')
             return
 
+def getHFrames(df, keepvar, pathlists):
+    '''
+    This functions takes a hierarchical dataframe and returns the dataframes of interest from the hierarchical structure. The frames returned
+    are indicated in a supplied list to the function. This function relies on the function unpack_parquet for the unpacking of data.
+    
+    :param df: The hierarchical dataframe which contains elements of interest to be unpacked and returned
+    :type df: dataframe
+    :param keepvar: List of root id variables in hierarchical structure to transfer to the unpacked dataframes
+    :type keepvar: list
+    :param pathlists: List or lists of path to dataframe to be unpacked. Position in list starts at 0 with name of variable in root level and each subsequent element 
+    contains the variable name of the next level
+    
+    Returns: dictionary of dataframes or dataframe
+    '''
+     
+    dicts = {} 
+    keep_keys = []
+    return_dict = {}
+    df_hier = df
+    if (isinstance(pathlists[0], list)):
+        for elementlists in pathlists:
+            for element in range(0, len(elementlists)):
+                if element==0:
+                    name = elementlists[element]
+                else:
+                    name = name + '_' + elementlists[element]                
+                if name in dicts.keys():
+                    df_hier = dicts[name]
+                else:
+                    tmpdict = unpack_parquet(df_hier, rootvar=keepvar, rootdf=False, levels=1)
+                    df_hier = tmpdict[elementlists[element]]
+                    dicts[name] = df_hier 
+                if element == (len(elementlists)-1):
+                    keep_keys.append(name)
+                    df_hier = df
+                    
+    else:
+        for element in range(0, len(pathlists)):
+                if element==0:
+                    name = pathlists[element]
+                else:
+                    name = name + '_' + pathlists[element]
+                if name in dicts.keys():
+                    df_hier = dicts[name]
+                else:
+                    tmpdict = unpack_parquet(df_hier, rootvar=keepvar, rootdf=False, levels=1)
+                    df_hier = tmpdict[pathlists[element]]
+                    dicts[name] = df_hier 
+                if element == (len(pathlists)-1):
+                    keep_keys.append(name)
+                    
+    for k in dicts.keys():
+        if k in keep_keys:
+            return_dict[k] = dicts[k]            
+    if (isinstance(pathlists[0], list)):
+        return return_dict
+    else:
+        return return_dict[keep_keys[0]]
+
 def orderedgroup(df, groupby, orderby,null_last=True, asc = False, rankedvar='ranked'):
     """
     This function takes a dataframe and adds a variable indicating the ordered rank of variables values inside another variables grouped values

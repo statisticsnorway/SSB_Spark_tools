@@ -86,6 +86,13 @@ hierarkidata_raw = [('#ID1', '01Jan2020',
 
 hierarki_testdata = spark.createDataFrame(hierarkidata_raw, hierarki_schema)
 
+dfpath_1 = ['arbeidsgiver', 'ansatte']
+dfpath_2 = ['utdanning', 'utdanning']
+dfpaths = [dfpath_1, dfpath_2]
+
+getDF = getHFrames(hierarki_testdata, keepvar=['persid'], pathlists=dfpath_1)
+getFrames = getHFrames(hierarki_testdata, keepvar=['persid'], pathlists=dfpaths) 
+
 orderdataschema = StructType([
     StructField('id', StringType(), False),
     StructField('farge', StringType(), True),
@@ -114,12 +121,26 @@ dato_hendelsedata = hierarki_testdata.withColumn('dato', F.to_timestamp('dato', 
 tverrsnitt = cross_sectional(dato_hendelsedata, 'dato', ['persid'])
 tverrsnitt_co = cross_sectional(dato_hendelsedata, 'dato', ['persid'], coDate=referansedato)
 
+
 def test_cross_sectional_all():
     assert tverrsnitt.count()==3
 
 def test_cross_sectional_co():
     assert tverrsnitt_co.count()==2
 
+# getHFrames #
+def test_getHFrames_isdf():
+    assert isinstance(getDF, DataFrame)
+    
+def test_getHFrames_dfcols():
+    assert all(elem in list(getDF.columns) for elem in ['persid', 'ansatte_id', 'navn', 'adresse'])
+
+def test_getHFrames_dfdicts():
+    assert isinstance(getHFrames(hierarki_testdata, keepvar=['persid'], pathlists=dfpaths), dict)
+
+def test_getHFrames_elements():
+    assert all(elem in list(getFrames.keys())  for elem in ['utdanning_utdanning', 'arbeidsgiver_ansatte'])
+    
 # orderedgroup #
 def test_orderedgroup_standard():
     assert ([row[0] for row in orderedgroup(ordereddata_df, 'farge', 'enheter').collect()]==
