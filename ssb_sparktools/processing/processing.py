@@ -134,17 +134,17 @@ def cross_sectional_old(df, event_var, event_id, coDate=None, spark_session=None
             raise Exception('Fjerde parameter må være en dato.')
             return
 
-def getHFrames(df, keepvar, pathlists):
+def getHFrames(df, pathlists, keepvar=False):
     '''
     This functions takes a hierarchical dataframe and returns the dataframes of interest from the hierarchical structure. The frames returned
     are indicated in a supplied list to the function. This function relies on the function unpack_parquet for the unpacking of data.
     
     :param df: The hierarchical dataframe which contains elements of interest to be unpacked and returned
     :type df: dataframe
-    :param keepvar: List of root id variables in hierarchical structure to transfer to the unpacked dataframes
-    :type keepvar: list
     :param pathlists: List or lists of path to dataframe to be unpacked. Position in list starts at 0 with name of variable in root level and each subsequent element 
     contains the variable name of the next level
+    :param keepvar: List of root id variables in hierarchical structure to transfer to the unpacked dataframes. Default is False which leads to no variable transfer
+    :type keepvar: list or boolean
     
     Returns: dictionary of dataframes or dataframe
     '''
@@ -176,6 +176,7 @@ def getHFrames(df, keepvar, pathlists):
                     name = pathlists[element]
                 else:
                     name = name + '_' + pathlists[element]
+                
                 if name in dicts.keys():
                     df_hier = dicts[name]
                 else:
