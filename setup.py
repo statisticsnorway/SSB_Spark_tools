@@ -13,7 +13,14 @@ def read(filename):
         return re.sub(text_type(r':[a-z]+:`~?(.*?)`'), text_type(r'``\1``'), fd.read())
 
 DEPENDENCIES = [
-
+'matplotlib>=3.0.3',
+'numpy>=1.19.4',
+'pandas>=1.0.3',
+'pyspark>=3.0.0',
+'python-dateutil>=2.8.1',
+'python-editor>=1.0.4',
+'python-json-logger>=0.1.11'
+'requests>=2.23.0',
 ]
 
 setup(
