@@ -148,7 +148,6 @@ def getHFrames(df, pathlists, keepvar=False):
     
     Returns: dictionary of dataframes or dataframe
     '''
-     
     dicts = {} 
     keep_keys = []
     return_dict = {}
@@ -158,12 +157,15 @@ def getHFrames(df, pathlists, keepvar=False):
             for element in range(0, len(elementlists)):
                 if element==0:
                     name = elementlists[element]
+                    nokkel=keepvar
                 else:
+                    if (nokkel) and (element>1):
+                        nokkel.append(str(elementlists[element-1])+'_id')
                     name = name + '_' + elementlists[element]                
                 if name in dicts.keys():
                     df_hier = dicts[name]
                 else:
-                    tmpdict = unpack_parquet(df_hier, rootvar=keepvar, rootdf=False, levels=1)
+                    tmpdict = unpack_parquet(df_hier, rootvar=nokkel, rootdf=False, levels=1)
                     df_hier = tmpdict[elementlists[element]]
                     dicts[name] = df_hier 
                 if element == (len(elementlists)-1):
@@ -174,7 +176,10 @@ def getHFrames(df, pathlists, keepvar=False):
         for element in range(0, len(pathlists)):
                 if element==0:
                     name = pathlists[element]
+                    nokkel=keepvar
                 else:
+                    if (nokkel) and (element>1):
+                        nokkel.append(str(pathlists[element-1])+'_id')
                     name = name + '_' + pathlists[element]
                 
                 if name in dicts.keys():
