@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "ssb-spark-tools"
+version = "0.1.7"
+description = "A collection of data processing Spark functions for the use in Statistics Norway."
+authors = ["Arne Sørli <81353974+arneso-ssb@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "ssb_sparktools"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.12"
+pyspark = "==3.2.1"
+wheel = "^0.37.1"
+pandas = "^1.5.1"
+
+[tool.poetry.group.dev.dependencies]
+black = {extras = ["jupyter"], version = "^22.10.0"}
+isort = "^5.10.1"
+pre-commit = "^2.20.0"
+pre-commit-hooks = "^4.3.0"
+jupyterlab = "^3.5.0"
+ipykernel = "^6.16.2"
+pytest = "^7.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+lines_after_imports = 2
