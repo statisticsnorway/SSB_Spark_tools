@@ -142,18 +142,21 @@ def test_getHFrames_elements():
     assert all(elem in list(getFrames.keys())  for elem in ['utdanning_utdanning', 'arbeidsgiver_ansatte'])
     
 # orderedgroup #
+
+# Newer pyspark versions sort the partitions in Window.partitionBy() in ascending order.
+# The tests below are updated to reflect this.
 def test_orderedgroup_standard():
     assert ([row[0] for row in orderedgroup(ordereddata_df, 'farge', 'enheter').collect()]==
-            ['#006', '#005', '#007', '#002', '#003', '#001', '#004', '#008', '#009'])
+            ['#002', '#003', '#001', '#004', '#008', '#009', '#006', '#005', '#007'])
 
 def test_orderedgroup_nullfirst():
     assert ([row[0] for row in orderedgroup(ordereddata_df, 'farge', 'enheter', null_last=False).collect()]==
-            ['#006', '#005', '#007', '#004', '#002', '#003', '#001', '#009', '#008'])
+            ['#004', '#002', '#003', '#001', '#009', '#008', '#006', '#005', '#007'])
 
 def test_orderedgroup_asc():
     assert ([row[0] for row in orderedgroup(ordereddata_df, 'farge', 'enheter', asc=True).collect()]==
-            ['#007', '#005', '#006', '#001', '#003', '#002', '#004', '#008', '#009'])
-    
+            ['#001', '#003', '#002', '#004', '#008', '#009', '#007', '#005', '#006'])
+
 # unpack_parquet #
 test_dict={}
 
