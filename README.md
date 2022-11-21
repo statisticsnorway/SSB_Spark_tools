@@ -1,4 +1,5 @@
 # SSB Spark Tools
+
 > A collection of data processing Spark functions for the use in Statistics Norway (SSB)
 
 [![PyPI version](https://img.shields.io/pypi/v/ssb_spark_tools.svg)](https://pypi.python.org/pypi/ssb_spark_tools/)
@@ -7,15 +8,11 @@
 
 The SSB Spark Tools Library is a colection of Data processing functions for the use in Data processing in Statistics Norway
 
-
-
 ## Installation
 
 ```python
 pip install ssb_spark_tools
 ```
-
-
 
 ## Development setup
 
@@ -35,10 +32,10 @@ bump-version-minor             Bump minor version, e.g. 0.0.1 -> 0.1.0
 
 Refer to the `Makefile` to see details about the different tasks.
 
-
 ### Testing
 
 Run tests for all python distributions using
+
 ```sh
 make test
 ```
@@ -46,10 +43,9 @@ make test
 This will require that your dev machine has the required python distributions installed locally.
 (You can install python distributions using [pyenv](https://realpython.com/intro-to-pyenv/).)
 
-
 ## Releasing
 
-*Prerequisites:*
+_Prerequisites:_
 You will need to register accounts on [PyPI](https://pypi.org/account/register/) and [TestPyPI](https://test.pypi.org/account/register/).
 
 Before releasing, make sure you're working on a "new" version number. You can bump the version using the [bumpversion tool](https://medium.com/@williamhayes/versioning-using-bumpversion-4d13c914e9b8).
@@ -57,6 +53,7 @@ Before releasing, make sure you're working on a "new" version number. You can bu
 Also, make sure to update release notes.
 
 To release and publish a new version to PyPI:
+
 ```sh
 make release-validate
 ```
@@ -70,27 +67,25 @@ make release-test
 ```
 
 To perform the actual release, run:
+
 ```sh
 make release
 ```
 
 You should see the new release appearing [here](https://pypi.org/project/ssb-pseudonymization) (it might take a couple of minutes for the index to update).
 
-
 ## Release History
 
-* 0.0.1
-    * Initial version with functions as in use on initiaition
-
+- 0.0.1
+  - Initial version with functions as in use on initiaition
 
 ## Meta
 
 Statistics Norway – https://github.com/statisticsnorway
 
-Distributed under the MIT license. See ``LICENSE`` for more information.
+Distributed under the MIT license. See `LICENSE` for more information.
 
 [https://github.com/statisticsnorway/ssb-pseudonymization-py]
-
 
 ## Contributing
 
