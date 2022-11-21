@@ -9,7 +9,7 @@ packages = [{include = "ssb_sparktools"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-pyspark = "~3.2.1"
+pyspark = "==3.2.1"
 pandas = "^1.5.1"
 
 [tool.poetry.group.dev.dependencies]
