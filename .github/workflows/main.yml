@@ -1,0 +1,39 @@
+name: Platforms
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  tests:
+    name: ${{ matrix.python }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { python: "3.10", os: "ubuntu-latest" }
+          - { python: "3.10", os: "macos-latest" }
+          - { python: "3.10", os: "windows-latest" }
+          - { python: "3.9", os: "ubuntu-latest" }
+          - { python: "3.8", os: "ubuntu-latest" }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry==1.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+          cache: "poetry"
+
+      - run: poetry install --no-root
+
+      - name: Run pytest
+        run: |
+          poetry run pytest --verbose --cov --cov-report=term --cov-report=xml --junitxml=pytest-report.xml

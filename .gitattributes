@@ -1,3 +1,4 @@
+* text=auto eol=lf
 # Dette hindrer at output fra scripts/notebooks lagres i github
 *.ipynb filter=nbstripout
 *.ipynb diff=ipynb
