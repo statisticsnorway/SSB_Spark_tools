@@ -489,7 +489,7 @@ def test_missing_df():
 
 
 def test_missing_variable():
-    list(test_missing_pd.index[:4]) == [
+    assert list(test_missing_pd.index[:4]) == [
         "identifikator",
         "numbvar",
         "boolvar",
@@ -498,11 +498,11 @@ def test_missing_variable():
 
 
 def test_missing_missingvalues():
-    list(test_missing_pd["missing"])[:4] == [0.0, 1.0, 1.0, 0.0]
+    assert list(test_missing_pd["missing"])[:4] == [0.0, 1.0, 1.0, 0.0]
 
 
 def test_missing_shareoftot():
-    list(test_missing_pd["shareoftotal"])[:4] == [0.0, 0.2, 0.2, 0.0]
+    assert list(test_missing_pd["shareoftotal"])[:4] == [0.0, 0.2, 0.2, 0.0]
 
 
 # spark_qual_missing

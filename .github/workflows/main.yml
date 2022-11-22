@@ -36,4 +36,4 @@ jobs:
 
       - name: Run pytest
         run: |
-          poetry run pytest --verbose
+          poetry run pytest --verbose --cov --cov-report=term --cov-report=xml --junitxml=pytest-report.xml

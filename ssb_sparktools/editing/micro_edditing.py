@@ -82,7 +82,7 @@ def micro_edditing():
         print(len(df_edditor), " Edditeringer er lagret")
         df_edditor = []
     else:
-        break
+        return
 
     for k, v in log.items():
         print("Bruker: ", k[0:3])
