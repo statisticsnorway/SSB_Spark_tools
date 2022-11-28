@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ssb-spark-tools"
-version = "0.1.7"
+version = "0.1.9"
 description = "A collection of data processing Spark functions for the use in Statistics Norway."
 authors = ["Statistics Norway <81353974+arneso-ssb@users.noreply.github.com>"]
 license = "MIT"
