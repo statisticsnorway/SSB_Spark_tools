@@ -134,7 +134,7 @@ def missing_correction_bool(
         # Legger alle boolske variabler i en egen liste
         for k in df.schema.fields:
             if k.name not in exception_for:
-                if str(k.dataType) == "BooleanType":
+                if str(k.dataType) == "BooleanType()":
                     boollist.append(k.name)
 
         # Transformerer spark dataframe til pandas dataframe for å lage logg med opptellinger av korrigerte verdier
@@ -227,13 +227,13 @@ def missing_correction_number(
         for k in df.schema.fields:
             if k.name not in exception_for:
                 if str(k.dataType) in [
-                    "LongType",
-                    "ByteType",
-                    "ShortType",
-                    "IntegerType",
-                    "FloatType",
-                    "DoubleType",
-                    "DecimalType",
+                    "LongType()",
+                    "ByteType()",
+                    "ShortType()",
+                    "IntegerType()",
+                    "FloatType()",
+                    "DoubleType()",
+                    "DecimalType()",
                 ]:
                     numlist.append(k.name)
 
@@ -332,7 +332,7 @@ def spark_missing_correction_bool(
         # Legger alle boolske variabler i en egen liste
         for k in df.schema.fields:
             if k.name not in exception_for:
-                if str(k.dataType) == "BooleanType":
+                if str(k.dataType) == "BooleanType()":
                     boollist.append(k.name)
         # Lager en logg
         df_count = df[boollist].select(
@@ -444,13 +444,13 @@ def spark_missing_correction_number(
         for k in df.schema.fields:
             if k.name not in exception_for:
                 if str(k.dataType) in [
-                    "LongType",
-                    "ByteType",
-                    "ShortType",
-                    "IntegerType",
-                    "FloatType",
-                    "DoubleType",
-                    "DecimalType",
+                    "LongType()",
+                    "ByteType()",
+                    "ShortType()",
+                    "IntegerType()",
+                    "FloatType()",
+                    "DoubleType()",
+                    "DecimalType()",
                 ]:
                     numlist.append(k.name)
 
