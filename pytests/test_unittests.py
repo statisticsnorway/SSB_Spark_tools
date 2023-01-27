@@ -525,7 +525,7 @@ def test_spark_qual_missing_missingvalues():
 def test_spark_qual_missing_datatype():
     assert [
         row["datatype"] for row in test_missing_spark.select("datatype").collect()
-    ] == ["StringType", "LongType", "BooleanType", "StringType"]
+    ] == ["StringType()", "LongType()", "BooleanType()", "StringType()"]
 
 
 def test_spark_qual_missing_percentage():
