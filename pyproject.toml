@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ssb-spark-tools"
-version = "0.1.9"
+version = "0.1.7"
 description = "A collection of data processing Spark functions for the use in Statistics Norway."
 authors = ["Statistics Norway <81353974+arneso-ssb@users.noreply.github.com>"]
 license = "MIT"
@@ -9,7 +9,7 @@ packages = [{include = "ssb_sparktools"}]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-pyspark = "~3.2.0"
+pyspark = "~3.3.1"
 pandas = "^1.5.1"
 
 [tool.poetry.group.dev.dependencies]
