@@ -34,7 +34,6 @@ def cross_sectional(df, event_var, event_id, coDate=None, spark_session=None):
         & (isinstance(event_id, list))
         & ((coDate == None) | (isinstance(coDate, datetime)))
     ):
-
         if spark_session is None:
             spark = SparkSession.builder.getOrCreate()
         else:
@@ -43,7 +42,6 @@ def cross_sectional(df, event_var, event_id, coDate=None, spark_session=None):
         if (
             [dtype for name, dtype in df.dtypes if name == event_var][0]
         ) == "timestamp":
-
             if coDate != None:
                 df = df.filter(F.col(event_var) <= coDate)
 
@@ -112,7 +110,6 @@ def cross_sectional_old(df, event_var, event_id, coDate=None, spark_session=None
         & (isinstance(event_id, list))
         & ((coDate == None) | (isinstance(coDate, datetime)))
     ):
-
         if spark_session is None:
             spark = SparkSession.builder.getOrCreate()
         else:
@@ -121,7 +118,6 @@ def cross_sectional_old(df, event_var, event_id, coDate=None, spark_session=None
         if (
             [dtype for name, dtype in df.dtypes if name == event_var][0]
         ) == "timestamp":
-
             if coDate != None:
                 df = df.filter(F.col(event_var) <= coDate)
 
@@ -382,7 +378,6 @@ def traverse_hierarchy(keylist, travdf, parqdf, idstreng, idname, hierarchylevel
 
 
 def unpack_parquet(parqdf, rootdf=False, rootvar=True, levels=-1, spark_session=None):
-
     """
     This function unpacks a hierarchical spark dataframe and relies on function traverse_hierarchy to traverse the hierarchy and unpack.
     Each unpacked object is a dataframe that gets stored in a dictionary which is then returned to the user.

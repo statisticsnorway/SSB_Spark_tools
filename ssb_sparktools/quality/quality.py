@@ -25,7 +25,6 @@ def missing_df(df, spark_session=None):
 
     # Parameter df --> datasett som det skal kjøres opptelling av missing for
     if isinstance(df, DataFrame):
-
         if spark_session is None:
             spark = SparkSession.builder.getOrCreate()
         else:
@@ -63,7 +62,6 @@ def missing_df(df, spark_session=None):
 
 
 def spark_qual_missing(df, df_name="", spark_session=None):
-
     """
 
     This function counts the number of missing on each variable in a spark dataframe and returns the result as a spark dataframe.
