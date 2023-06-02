@@ -43,7 +43,6 @@ def listcode_check(df, variabel, kodeliste, spark_session=None):
         & (isinstance(variabel, str))
         & ((isinstance(kodeliste, type([]))) | (isinstance(kodeliste, DataFrame)))
     ):
-
         # Setter opp peker til context som brukes i forbindelse med oppretting av nytt datasett
         if spark_session is None:
             spark = SparkSession.builder.getOrCreate()

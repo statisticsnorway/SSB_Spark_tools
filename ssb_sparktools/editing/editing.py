@@ -45,7 +45,6 @@ def listcode_lookup(df, luvar, kodeliste, nokkelverdi, spark_session=None):
         & (isinstance(kodeliste, DataFrame))
         & (isinstance(nokkelverdi, type([])))
     ):
-
         # Inititerer variabler
         if spark_session is None:
             spark = SparkSession.builder.getOrCreate()
